@@ -3,7 +3,7 @@ Auto functional regression test for gridx modules basing on Casperjs and Phantom
 
 #test case base on the gridx test pages in dojo/gridx/tests folder.
 #gridx test page list:
-1. Simplest grid -- test_grid.html, test_grid_addRow.html, test_grid_autoHeight_autoWidth.html
+1. Simplest grid -- test_grid.html
 2. ColumnResizer -- test_grid_columnResizer.html
 3. SingleSort  -- test_grid_sort.html
 4. CellWidget  --	test_grid_cellWidget.html
@@ -41,3 +41,5 @@ Auto functional regression test for gridx modules basing on Casperjs and Phantom
 36. rowHeader     --    	test_grid_rowHeader.html
 37. Resize        --      	test_grid_resize.html
 38. Dod         --        test_grid_dod.html
+39. AddRow      	--		test_grid_addRow.html
+40. autoSizing		-- 		test_grid_autoHeight_autoWidth.html
