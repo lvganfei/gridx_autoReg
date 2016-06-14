@@ -14,11 +14,11 @@ var casper = require('casper').create(option);
 */
 var screenshotFolder = 'screenshot/SimplestGrid';
 
-casper.test.begin('SimplestGrid test', 3, function suite1(test){
+casper.test.begin('SimplestGrid test', 7, function suite1(test){
 
 	casper.start('http://idx.ibm.com/dojo_1.10.4/gridx/tests/test_grid.html');
 
-// start the test page
+	// start the test page
 	casper.then(function(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -31,14 +31,14 @@ casper.test.begin('SimplestGrid test', 3, function suite1(test){
 		}, 10000);
 	});
 
-//test step1 change column structure
+	//test change column structure section
 	casper.then(function changeStructure(){
 		this.clickLabel('Change column structure', 'span');
 		this.capture(screenshotFolder+'/afterChangeStructure.png');
 		test.assertElementCount('td[role=columnheader]', 7, '02--the column count should be 7 after click change structure button');
 	});
 
-//test step2 change grid store
+	//test change grid store section
 	casper.then(function changeStore(){
 		var storeLenbefore = this.evaluate(function(){
 			return grid.store.data.length;
@@ -52,7 +52,40 @@ casper.test.begin('SimplestGrid test', 3, function suite1(test){
 		});
 
 		this.echo(storeLenbefore+'& '+storeLenAfter);
-		test.assertNotEquals(storeLenbefore, storeLenAfter,'the before store and after store should not equal!');
+		test.assertNotEquals(storeLenbefore, storeLenAfter,'03--the before store and after store should not equal!');
+	});
+
+	//test add an empty new row section
+	casper.then(function addNewEmptyRow(){
+
+		var storeLenbefore = this.evaluate(function(){
+			return grid.store.data.length;
+		});
+
+		this.clickLabel('Add an empty new row', 'span');
+		test.assertEquals(this.evaluate(function(){
+			return grid.store.data.length;
+		}), storeLenbefore+1,'04--The new store should 1 longer than the older one!');
+	});
+
+	//test set year column of first row section
+	casper.then(function setYear(){
+		var yearBefore = this.getElementInfo('td[aria-describedby=grid-Year]').text;
+		this.clickLabel('Set Year of the first row', 'span');
+		test.assertNotEquals(this.getElementInfo('td[aria-describedby=grid-Year]').text, yearBefore, '05--the year value should change after click the button!');
+	});
+
+	//test delete the first row section
+	casper.then(function deleteFirstRow(){
+		
+		test.assertEquals(this.exists('div[rowid="0"]'), true , '06--the first row which rowid=0 should exist!');
+		this.clickLabel('Delete the first row', 'span');
+		this.click('#dijit_form_Button_4');
+		this.echo(this.exists('div[rowid="0"][parentid]'));
+		this.capture(screenshotFolder+'/afterDelete.png');
+		test.assertNotEquals(this.exists('div[rowid="0"]'), true, '07--the first row which rowid=0 should NOT exist!');
+		this.echo(this.getElementAttribute('div[role=row][parentid]', 'rowid'));
+		test.assertNotEquals(this.getElementAttribute('div[role=row][parentid]', 'rowid'), '0', '08--the rowid of first row should not be 0!');
 	})
 
 
