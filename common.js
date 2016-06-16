@@ -45,7 +45,13 @@ var caseToPage = {
 var config = {
 	verbose: true, 
 	logLevel:'debug',
-	viewportSize: {width:800, height:600}
+	viewportSize: {width:1024, height:768},
+	onError: function(msg, arr){
+		casper.echo('error message is; '+msg,'ERROR');
+	},
+	onLoadError:function(_casper, url, status){
+		casper.echo('This url is cant be loaded: '+url+' and status is: '+status, 'ERROR');
+	}
 };
 
 
