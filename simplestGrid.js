@@ -13,9 +13,9 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
-casper.test.begin('SimplestGrid test', 7, function suite1(test){
+casper.test.begin('SimplestGrid test', 10, function suite1(test){
 
-	casper.start('http://idx.ibm.com/dojo_1.10.4/gridx/tests/test_grid.html');
+	casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid.html');
 
 	// start the test page
 	casper.then(function(){
@@ -95,7 +95,22 @@ casper.test.begin('SimplestGrid test', 7, function suite1(test){
 		test.assertEquals(this.exists('div.gridx'), true, '06--the grid node is existing!');
 		this.clickLabel('Destroy', 'span');
 		test.assertEquals(this.exists('div#grid'), false, '07--Now the grid node should be removed from document stream!');
-	})
+	});
+
+	//test create grid button section
+	casper.then(function createGrid(){
+		this.clickLabel('Create', 'span');
+		test.assertEquals(this.exists('td[role=gridcell]'), true, '08--The grid should create correctly!');
+
+	});
+
+	//test the toggle header section
+	casper.then(function toggleHeader(){
+		this.clickLabel('Toggle Header', 'span');
+		this.capture(screenshotFolder+'/afterToggleHeader.png');
+		test.assertEquals(this.exists('div.gridxHeaderRowHidden'), true, '09--The grid header should be hidden!');
+		test.assertEquals(this.getElementBounds('div.gridxHeaderRowHidden').height, 0 , '10--The height of header should be ZERO now!');
+	});
 
 	casper.run(function(){
 		test.done();
