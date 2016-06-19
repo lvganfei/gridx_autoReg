@@ -21,7 +21,7 @@ casper.on('resource.error', function(error){
 
 casper.test.begin('SimplestGrid test', 14, function suite1(test){
 
-	casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid.html', function pageLoadCheck(){
+	casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/'+cases.SimplestGrid, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){
