@@ -11,6 +11,8 @@ var screenshotFolder = 'screenshot/SimplestGrid';
 casper.options.verbose = false;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
+
+//error event handlers
 casper.on("page.error", function(msg, trace) {
     this.echo("Page Error: " + msg, "ERROR");
 });
@@ -19,9 +21,16 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
+//refresh grid function, eleId is the id of grid you want to refresh.
+casper.refreshGrid = function(eleId){
+	this.evaluate(function(eleId){
+		dijit.byId(eleId).body.refresh();
+	}, eleId);
+};
+
 casper.test.begin('SimplestGrid test', 14, function suite1(test){
 
-	casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/'+cases.SimplestGrid, function pageLoadCheck(){
+	casper.start(cases.testPagePrefix+cases.SimplestGrid, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){
@@ -114,8 +123,8 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 		test.assertEquals(this.exists('div[rowid="0"]'), true , '11--the first row which rowid=0 should exist!');
 		this.clickLabel('Delete the first row', 'span');
 		this.click('#dijit_form_Button_4');
+		this.refreshGrid('grid');
 		var lenAfter = this.evaluate(function deleteRow(){
-			grid.body.refresh();
 			return grid.store.data.length;
 		});
 		test.assertEquals(lenAfter, 98, '12--The store length after delete shoulb be 98!')

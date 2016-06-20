@@ -7,6 +7,8 @@ var screenshotFolder = 'screenshot/SimplestGrid';
 casper.options.verbose = false;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
+
+//error event handlers
 casper.on("page.error", function(msg, trace) {
     this.echo("Page Error: " + msg, "ERROR");
 });
@@ -15,9 +17,15 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
+//refresh grid function
+casper.refreshGrid = function(eleId){
+	this.evaluate(function(eleId){
+		dijit.byId(eleId).body.refresh();
+	}, eleId);
+};
 
 casper.test.begin('case name', 14, function suite1(test){
-	casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/'+cases.ColumnResizer, function pageLoadCheck(){
+	casper.start(cases.testPagePrefix+cases.currentCaseName, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){
