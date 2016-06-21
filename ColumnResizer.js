@@ -4,7 +4,7 @@ var utils = require('utils');
 var screenshotFolder = 'screenshot/ColumnResizer';
 
 //utils.dump(config);
-casper.options.verbose = true;
+casper.options.verbose = false;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
 
