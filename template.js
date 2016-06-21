@@ -10,11 +10,11 @@ casper.options.viewportSize = {width:1280, height:800};
 
 //error event handlers
 casper.on("page.error", function(msg, trace) {
-    this.echo("Page Error: " + msg, "ERROR");
+    this.echo("[Page Error]: " + msg, "ERROR");
 });
 
 casper.on('resource.error', function(error){
-	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
+	this.echo('[Resource error code]: '+ error.errorCode+" [error string]: "+error.errorString+" [error url]: "+error.url+' [id]: '+error.id,'ERROR');
 });
 
 //refresh grid function
