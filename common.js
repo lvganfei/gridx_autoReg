@@ -1,5 +1,5 @@
 var caseToPage = {
-	'testPagePrefix':'http://idx.ibm.com/dojo_1.10.4/gridx/tests/',
+	'testPagePrefix':'http://localhost/workspace/dojo1.10.4/gridx/tests/',
 	'SimplestGrid':'test_grid.html',
 	'ColumnResizer':'test_grid_columnResizer.html',
 	'SingleSort':'test_grid_sort.html',
@@ -17,8 +17,7 @@ var caseToPage = {
 	'QuickFilter':'test_grid_filter.html',
 	'PaginationBar':'test_grid_paginationBar.html',
 	'PaginationBarDD':'test_grid_paginationBar.html',
-	'DND/row':'test_grid_dnd_rearrange.html',
-	'DND/column':'test_grid_dnd_rearrange.html',
+	'DND':'test_grid_dnd_rearrange.html',
 	'DND/Tree':'test_grid_tree.html',
 	'Menu':'test_grid_menu.html',
 	'NestedSort':'test_grid_sort.html',
