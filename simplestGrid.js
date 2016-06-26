@@ -5,7 +5,7 @@ testPage = common.SimplestGrid;*/
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
-var screenshotFolder = 'screenshot/SimplestGrid';
+var screenshotFolder = 'screenshot/SimplestGrid/';
 
 //utils.dump(config);
 casper.options.verbose = false;
@@ -36,7 +36,7 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 			return this.exists('td.gridxCell ');
 		}, function then(){
 			this.echo('page loaded!');
-			this.capture(screenshotFolder+'/beforeChangeStructure.png');
+			this.capture(screenshotFolder+'beforeChangeStructure.png');
 			test.assertElementCount('td[role=columnheader]', 13, '01--the original columns count should be 13!');
 		}, function timeout(){
 			this.echo('cant get element!!!!');
@@ -49,7 +49,7 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 	//test change column structure section
 	casper.then(function changeStructure(){
 		this.clickLabel('Change column structure', 'span');
-		this.capture(screenshotFolder+'/afterChangeStructure.png');
+		this.capture(screenshotFolder+'afterChangeStructure.png');
 		test.assertElementCount('td[role=columnheader]', 7, '02--the column count should be 7 after click change structure button');
 	});
 
@@ -60,7 +60,7 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 		});
 
 		this.clickLabel('Change store','span');
-		this.capture(screenshotFolder+'/afterChangeStore.png');
+		this.capture(screenshotFolder+'afterChangeStore.png');
 
 		var storeLenAfter = this.evaluate(function(){
 			return grid.store.data.length;
@@ -113,14 +113,14 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 	//test the toggle header section
 	casper.then(function toggleHeader(){
 		this.clickLabel('Toggle Header', 'span');
-		this.capture(screenshotFolder+'/afterToggleHeader.png');
+		this.capture(screenshotFolder+'afterToggleHeader.png');
 		test.assertEquals(this.exists('div.gridxHeaderRowHidden'), true, '09--The grid header should be hidden!');
 		test.assertEquals(this.getElementBounds('div.gridxHeaderRowHidden').height, 0 , '10--The height of header should be ZERO now!');
 	});
 
 		//test delete the first row section
 	casper.then(function deleteFirstRow(){
-		this.capture(screenshotFolder+'/beforeDelete.png');
+		this.capture(screenshotFolder+'beforeDelete.png');
 		test.assertEquals(this.exists('div[rowid="0"]'), true , '11--the first row which rowid=0 should exist!');
 		this.clickLabel('Delete the first row', 'span');
 		this.click('#dijit_form_Button_4');
@@ -130,7 +130,7 @@ casper.test.begin('SimplestGrid test', 14, function suite1(test){
 		});
 		test.assertEquals(lenAfter, 98, '12--The store length after delete shoulb be 98!')
 		this.echo('!!Is the rowid=0 exist? '+this.exists('div[rowid="0"][parentid]'));
-		this.capture(screenshotFolder+'/afterDelete.png');
+		this.capture(screenshotFolder+'afterDelete.png');
 		this.echo('!!the rowid of first row is: '+this.getElementAttribute('div[role=row][parentid]', 'rowid'));
 		
 		test.assertNotEquals(this.exists('div[rowid="0"]'), true, '13--the first row which rowid=0 should NOT exist!');

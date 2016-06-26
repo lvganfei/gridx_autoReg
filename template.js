@@ -1,9 +1,9 @@
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
-var screenshotFolder = 'screenshot/SimplestGrid';
+var screenshotFolder = 'screenshot/module/';
 
-//utils.dump(config);
+//edit the capser object properties in test instance
 casper.options.verbose = false;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
@@ -30,7 +30,7 @@ casper.test.begin('case name', 14, function suite1(test){
 			return this.exists('td.gridxCell ');
 		}, function then(){
 			this.echo('page loaded!');
-			this.capture(screenshotFolder+'/originGrid.png');
+			this.capture(screenshotFolder+'originGrid.png');
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
