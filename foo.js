@@ -3,7 +3,7 @@ var cases = require('./common').cases;
 var config = require('./common').config;
 var casper = require('casper').create(config);
 var utils = require('utils');
-var mouse = require('mouse').create(casper);
+//var mouse = require('mouse').create(casper);
 
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -18,7 +18,7 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 */
-casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid_dnd_rearrange.html', function() {
+casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid_alwaysEditing.html', function() {
     this.waitForSelector('td[role=gridcell]', function loadfinished(){
     	this.echo(this.getTitle());
     	//this.capture('foo.png');
@@ -27,28 +27,51 @@ casper.start('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid_dnd_re
     
 });
 
-casper.then(function() {
-	utils.dump(this.getElementBounds('#grid-Artist').left+' and '+this.getElementBounds('#grid-Artist').top);
-	//this.click('#grid-Artist');
-	this.capture('dndbefore.png');
-	//this.mouseEvent('mouseover', '#grid-Artist', '100%', '50%');
-	//this.capture('dndOver.png');
-	this.mouse.down(this.getElementBounds('#grid-Artist').left, this.getElementBounds('#grid-Artist').top+10);
-	this.capture('dndDown.png');
-	this.mouse.move(this.getElementBounds('#grid-Artist').left+100, this.getElementBounds('#grid-Artist').top+10);
-	//this.capture('dndMove.png');
-	this.mouse.up(this.getElementBounds('#grid-Artist').left+100, this.getElementBounds('#grid-Artist').top+10);
-	this.capture('DndUp.png');
-	//this.mouseEvent('mouseover', 'td.gridxColumnSelected[role=gridcell]', '50%', '50%');
-	this.mouse.down('td.gridxColumnSelected[role=gridcell]');
-	this.mouse.move(this.getElementBounds('#grid-Artist').left+400, this.getElementBounds('#grid-Artist').top+80);
-	this.capture('dndMove.png');
-	this.mouse.up(this.getElementBounds('#grid-Artist').left, this.getElementBounds('#grid-Artist').top+40);
-	this.capture('last.png');
-	//utils.dump(this.getElementInfo('#grid-Artist'));
+casper.then(function editComboBox(){
+		var oriComboVal = this.evaluate(function getOriComboVal(){
+			return grid1.store.data[0].Album;
+		});
+		//utils.dump(oriComboVal);
+		this.capture('origin.png');
+		this.click('input.dijitArrowButtonInner', '50%', '50%');
+		this.then(function changeComboVal(){
+			this.waitUntilVisible('div.dijitPopup', function selectItem(){
+				this.capture('clickArrow.png');
+				// click the "Down the Road" menu item to select it
+				this.clickLabel('Down the Road', 'div');
+				this.capture('afterSelect.png');
+				this.wait(3000);
+			});
+		});
+
+
+ 		
+		this.then(function getActiveE(){
+
+			this.capture('afterSelect3s.png');
+			var activeEle = this.evaluate(function getActive(){
+				return document.activeElement.className;
+			});
+			utils.dump(activeEle);
+			//here check the active element is combo, focus is in combo
+		});
+
+		this.then(function checkVal(){
+			this.clickLabel('ID', 'div');
+			var newVComboVal = this.evaluate(function getNewComboVal(){
+				return grid1.store.data[0].Album;
+			});
+			//here check the new Combo value
+			utils.dump(newVComboVal);
+		});
+		
+	
+	});
+
+
+	
    
-   
-});
+  
 /*
 casper.thenOpen('http://localhost/workspace/dojo1.10.4/gridx/tests/test_grid.html', function refresh(){
 	this.clickLabel('Delete the first row', 'span');

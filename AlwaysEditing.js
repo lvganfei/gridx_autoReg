@@ -21,7 +21,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('AlwaysEditing test case', 2, function suite1(test){
+casper.test.begin('AlwaysEditing test case', 3, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.AlwaysEditing, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -53,7 +53,48 @@ casper.test.begin('AlwaysEditing test case', 2, function suite1(test){
 			return grid1.store.data[0]['Genre'];
 		});
 		test.assertEquals(newText, 'LXY', '02--The new value of the first textbox should equal the input value!');
+		
+	});
+
+	casper.then(function textFocus(){
+		//retain focus test
+		this.reload(function reload(){
+			this.echo('page reload!');
+		});
+		this.sendKeys('input.dijitInputInner', 'new value', {reset: true, keepFocus: true});
+		this.capture(screenshotFolder+'afterReType.png');
+		this.then(function wait3s(){
+			this.wait(3000);
+		});
+		var activeEle = this.evaluate(function getActive(){
+			return document.activeElement.id;
+		});
+		test.assertEquals(activeEle, 'dijit_form_TextBox_0', '03-The focus should retain in the first input with id dijit_form_NumberTextBox_0!');
+		utils.dump(activeEle);
 	})
+/*	casper.then(function editComboBox(){
+		var oriComboVal = this.evaluate(function getOriComboVal(){
+			return grid1.store.data[0].Album;
+		});
+		utils.dump(oriComboVal);
+		this.click('input.dijitArrowButtonInner');
+		
+		this.waitForSelector('div.dijitComboBoxMenuPopup', function selectItem(){
+			this.capture(screenshotFolder+'clickArrow.png');
+		});
+ 		// click the "Down the Road" menu item to select it
+		this.clickLabel('Down the Road', 'div');
+
+		var newVComboVal = this.evaluate(function getNewComboVal(){
+			return grid1.store.data[0].Album;
+		});
+
+		var activeEle = this.evaluate(function getActive(){
+			return document.activeElement;
+		});
+		utils.dump(activeEle);
+
+	});*/
 
 	casper.run(function(){
 		test.done();
