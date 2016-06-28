@@ -21,7 +21,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('AlwaysEditing test case', 3, function suite1(test){
+casper.test.begin('AlwaysEditing test case', 5, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.AlwaysEditing, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -59,42 +59,95 @@ casper.test.begin('AlwaysEditing test case', 3, function suite1(test){
 	casper.then(function textFocus(){
 		//retain focus test
 		this.reload(function reload(){
-			this.echo('page reload!');
+			this.waitForSelector('td.gridxCell ', function(){
+				this.echo('page reload!');
+			});
 		});
-		this.sendKeys('input.dijitInputInner', 'new value', {reset: true, keepFocus: true});
-		this.capture(screenshotFolder+'afterReType.png');
+
+		this.then(function reFocusText(){
+			this.click('input.dijitInputInner');
+			//sendKeys() cant retain focus, may be a bug
+			//this.sendKeys('input.dijitInputInner', 'hi', {reset:true, keepFocus: true});
+			this.capture(screenshotFolder+'afterReFocus.png');
+		});
+		
 		this.then(function wait3s(){
 			this.wait(3000);
 		});
-		var activeEle = this.evaluate(function getActive(){
-			return document.activeElement.id;
+
+		this.then(function checkFocus(){
+			
+			var activeEleId = this.evaluate(function getActive(){
+				return document.activeElement.id;
+			});
+			//utils.dump(activeEleId);
+
+			var firstTextboxId = this.getElementAttribute('input.dijitInputInner', 'id');
+			
+			//utils.dump(firstTextboxId);
+			//the active element should be the first textbox
+			test.assertEquals(activeEleId, firstTextboxId, '03-The focus should retain in the first input box!');
+
 		});
-		test.assertEquals(activeEle, 'dijit_form_TextBox_0', '03-The focus should retain in the first input with id dijit_form_NumberTextBox_0!');
-		utils.dump(activeEle);
-	})
-/*	casper.then(function editComboBox(){
+		
+		
+	});
+
+	casper.then(function editComboBox(){
 		var oriComboVal = this.evaluate(function getOriComboVal(){
 			return grid1.store.data[0].Album;
 		});
-		utils.dump(oriComboVal);
-		this.click('input.dijitArrowButtonInner');
-		
-		this.waitForSelector('div.dijitComboBoxMenuPopup', function selectItem(){
-			this.capture(screenshotFolder+'clickArrow.png');
+		//utils.dump(oriComboVal);
+		this.capture('origin.png');
+		this.click('input.dijitArrowButtonInner', '50%', '50%');
+		this.then(function changeComboVal(){
+			this.waitUntilVisible('div.dijitPopup', function selectItem(){
+				this.capture('clickArrow.png');
+				// click the "Down the Road" menu item to select it
+				this.clickLabel('Down the Road', 'div');
+				this.capture('afterSelect.png');
+				
+			});
 		});
- 		// click the "Down the Road" menu item to select it
-		this.clickLabel('Down the Road', 'div');
 
-		var newVComboVal = this.evaluate(function getNewComboVal(){
-			return grid1.store.data[0].Album;
+		this.then(function wait3s(){
+			this.wait(3000);
+		});
+ 		
+		this.then(function getActiveE(){
+
+			this.capture('afterSelect3s.png');
+
+			var activeEle = this.evaluate(function getActive(){
+				return document.activeElement.id;
+			});
+			
+			utils.dump(activeEle);
+
+			var firstComboId = this.getElementAttribute('input.dijitInputInner[role=textbox]', 'id');
+			
+			utils.dump(firstComboId);
+
+			//here check the active element is combo, focus is in combo
+			//here is a bug, the focus can't retain in the combo
+			test.assertEquals(activeEle, firstComboId, '04--the focus should retain in the first combo!');
+
 		});
 
-		var activeEle = this.evaluate(function getActive(){
-			return document.activeElement;
-		});
-		utils.dump(activeEle);
+		this.then(function checkVal(){
+			//Move focus out
+			this.clickLabel('ID', 'div');
 
-	});*/
+			var newComboVal = this.evaluate(function getNewComboVal(){
+				return grid1.store.data[0].Album;
+			});
+			
+			//here check the new Combo value
+			//utils.dump(newComboVal);
+			test.assertEquals(newComboVal, 'Down the Road', '05--The new value of first Combo should be the value set in former step!');
+		});
+
+	});
 
 	casper.run(function(){
 		test.done();

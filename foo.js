@@ -64,9 +64,8 @@ casper.then(function editComboBox(){
 			//here check the new Combo value
 			utils.dump(newVComboVal);
 		});
-		
 	
-	});
+});
 
 
 	
