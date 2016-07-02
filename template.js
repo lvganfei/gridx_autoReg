@@ -4,9 +4,9 @@ var utils = require('utils');
 var screenshotFolder = 'screenshot/module/';
 
 //edit the capser object properties in test instance
-casper.options.verbose = false;
-casper.options.logLevel = 'debug';
-casper.options.viewportSize = {width:1280, height:800};
+casper.options.verbose = config.verbose;
+casper.options.logLevel = config.logLevel;
+casper.options.viewportSize = config.viewportSize;
 
 //error event handlers
 casper.on("page.error", function(msg, trace) {
@@ -37,6 +37,8 @@ casper.test.begin('case name', 14, function suite1(test){
 		}, 10000);
 
 	});
+
+	//test case start here
 
 
 	casper.run(function(){
