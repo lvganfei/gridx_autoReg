@@ -24,7 +24,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('Select Row', 6, function suite1(test){
+casper.test.begin('Select Row', 8, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SelectRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -74,18 +74,57 @@ casper.test.begin('Select Row', 6, function suite1(test){
 			var fifthRow = this.getElementAttribute('div[rowid="5"]', 'class');
 			test.assertEquals(fifthRow.indexOf('gridxRowSelected'), -1, '03--The 5th row should NOT have gridxRowSelected class!');
 		});
+
+		//Verify the result of is row 5 selected
+		this.waitForAlert(function(response){
+			test.assertMatch(response.data, /false/g, '04--The result of "Is row 5 selected?" should be false!');
+    		this.echo("Alert received: " + response.data);
+    		this.sendKeys('body', '\uE00C');
+		});
+		this.clickLabel('Is row 5 selected?', 'span');		
 	});
 
 	casper.then(function is5Selected(){
-
-	});
-
-	casper.then(function clearSelection(){
+			
+		//click the id cell of 4th row and Select row id 5 button
+		this.click('div.gridxRow[rowid="4"] td[colid=id]', '50%', '50%');
+		this.refreshGrid('grid');
+		this.clickLabel('Select row id 5', 'span');
+		this.capture(screenshotFolder+'afterSelect4and5.png');
+		
+		this.waitForAlert(function(response){
+			test.assertMatch(response.data, /true/g, '05--The result of "Is row 5 selected?" should be true!')
+    		this.echo("Alert received: " + response.data);
+    		this.sendKeys('body', '\uE00C');
+		});
+		//click the "Is row 5 selected?" button
+		this.clickLabel('Is row 5 selected?', 'span');	
+		
 
 	});
 
 	casper.then(function getSelection(){
+		this.waitForAlert(function(response){
+			test.assertMatch(response.data, /4,5/g, '06--The result of selected rows should be 4 and 5!')
+    		this.echo("Alert received: " + response.data);
+    		this.sendKeys('body', '\uE00C');
+		});
+		//click the "Get selected rows" button
+		this.clickLabel('Get selected rows', 'span');
+	});
 
+	casper.then(function clearSelection(){
+		
+		//click the "Clear row selections" button
+		this.clickLabel('Clear row selections', 'span');
+
+		this.waitForAlert(function(response){
+			test.assertEquals(response.data, 'selected rows: ', '07--The result of "Selected rows" now should be empty!')
+    		this.echo("Alert received: " + response.data);
+    		this.sendKeys('body', '\uE00C');
+		});
+		//click the "Get selected rows" button again
+		this.clickLabel('Get selected rows', 'span');
 	});
 	casper.run(function(){
 		test.done();
