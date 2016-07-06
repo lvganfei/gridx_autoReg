@@ -17,6 +17,10 @@ casper.on('resource.error', function(error){
 	this.echo('[Resource error code]: '+ error.errorCode+" [error string]: "+error.errorString+" [error url]: "+error.url+' [id]: '+error.id,'ERROR');
 });
 
+casper.on('remote.alert', function(message){
+	this.echo('[Remote alert message]: '+ message, 'ERROR');
+});
+
 //refresh grid function
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -24,7 +28,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('Select Row', 8, function suite1(test){
+casper.test.begin('Select Row test case', 8, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SelectRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -42,7 +46,7 @@ casper.test.begin('Select Row', 8, function suite1(test){
 	casper.then(function selectRowAction(){
 		this.clickLabel('Select Row Actions', 'span');
 		this.waitForText('Select row id 5', function rowShow(){
-			this.capture(screenshotFolder+'origin.png');
+			this.capture(screenshotFolder+'beforeTest.png');
 			test.assertEquals(this.visible('#dijit_form_Button_0'), true, 'The row buttons should display!');
 		}, function timeOut(){
 			this.echo('The row buttons not display!');
