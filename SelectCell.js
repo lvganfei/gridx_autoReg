@@ -28,7 +28,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('Select Cell test', 7, function suite1(test){
+casper.test.begin('Select Cell test', 9, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SelectCell, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
