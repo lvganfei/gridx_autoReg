@@ -42,8 +42,8 @@ casper.test.begin('Select Column test', 9, function suite1(test){
 
 	});
 
-	//open the select row section in the accordionPane
-	casper.then(function selectRowAction(){
+	//open the select Column section in the accordionPane
+	casper.then(function selectColAction(){
 		this.clickLabel('Select Column Actions', 'span');
 		this.waitForText('Select column Name', function columnSelectionShow(){
 			this.capture(screenshotFolder+'beforeTest.png');
