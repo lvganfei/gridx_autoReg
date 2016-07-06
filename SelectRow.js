@@ -28,7 +28,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('Select Row test case', 8, function suite1(test){
+casper.test.begin('Select Row test case', 9, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SelectRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -67,7 +67,15 @@ casper.test.begin('Select Row test case', 8, function suite1(test){
 			var fifthRow = this.getElementAttribute('div[rowid="5"]', 'class');
 
 			utils.dump(fifthRow);
-			test.assertNotEquals(fifthRow.indexOf('gridxRowSelected'), -1, '02--The 5th row has gridxRowSelected class!');
+			test.assertNotEquals(fifthRow.indexOf('gridxRowSelected'), -1, '02--The 5th row should has gridxRowSelected class!');
+
+			//Verify the result of is row 5 selected
+			this.waitForAlert(function(response){
+				test.assertMatch(response.data, /true/g, '03--The result of "Is row 5 selected?" should be TRUE!');
+    			this.echo("Alert received: " + response.data);
+    			this.sendKeys('body', '\uE00C');
+			});
+			this.clickLabel('Is row 5 selected?', 'span');		
 
 		})
 	});
@@ -76,12 +84,12 @@ casper.test.begin('Select Row test case', 8, function suite1(test){
 		this.clickLabel('Deselect row id 5', 'span');
 		this.then(function check5isDeselected(){
 			var fifthRow = this.getElementAttribute('div[rowid="5"]', 'class');
-			test.assertEquals(fifthRow.indexOf('gridxRowSelected'), -1, '03--The 5th row should NOT have gridxRowSelected class!');
+			test.assertEquals(fifthRow.indexOf('gridxRowSelected'), -1, '04--The 5th row should NOT have gridxRowSelected class!');
 		});
 
 		//Verify the result of is row 5 selected
 		this.waitForAlert(function(response){
-			test.assertMatch(response.data, /false/g, '04--The result of "Is row 5 selected?" should be false!');
+			test.assertMatch(response.data, /false/g, '05--The result of "Is row 5 selected?" should be false!');
     		this.echo("Alert received: " + response.data);
     		this.sendKeys('body', '\uE00C');
 		});
@@ -97,7 +105,7 @@ casper.test.begin('Select Row test case', 8, function suite1(test){
 		this.capture(screenshotFolder+'afterSelect4and5.png');
 		
 		this.waitForAlert(function(response){
-			test.assertMatch(response.data, /true/g, '05--The result of "Is row 5 selected?" should be true!')
+			test.assertMatch(response.data, /true/g, '06--The result of "Is row 5 selected?" should be true!')
     		this.echo("Alert received: " + response.data);
     		this.sendKeys('body', '\uE00C');
 		});
@@ -109,7 +117,7 @@ casper.test.begin('Select Row test case', 8, function suite1(test){
 
 	casper.then(function getSelection(){
 		this.waitForAlert(function(response){
-			test.assertMatch(response.data, /4,5/g, '06--The result of selected rows should be 4 and 5!')
+			test.assertMatch(response.data, /4,5/g, '07--The result of selected rows should be 4 and 5!')
     		this.echo("Alert received: " + response.data);
     		this.sendKeys('body', '\uE00C');
 		});
@@ -123,7 +131,7 @@ casper.test.begin('Select Row test case', 8, function suite1(test){
 		this.clickLabel('Clear row selections', 'span');
 
 		this.waitForAlert(function(response){
-			test.assertEquals(response.data, 'selected rows: ', '07--The result of "Selected rows" now should be empty!')
+			test.assertEquals(response.data, 'selected rows: ', '08--The result of "Selected rows" now should be empty!')
     		this.echo("Alert received: " + response.data);
     		this.sendKeys('body', '\uE00C');
 		});

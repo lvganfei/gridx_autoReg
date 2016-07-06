@@ -49,7 +49,7 @@ casper.test.begin('Select Column test', 9, function suite1(test){
 			this.capture(screenshotFolder+'beforeTest.png');
 			test.assertTextExists('Select column Name', 'The columc action buttons is ready!');
 		}, function timeOut(){
-			this.echo('The row buttons not display!');
+			this.echo('The column buttons not display!');
 		});
 		
 	});
@@ -71,7 +71,7 @@ casper.test.begin('Select Column test', 9, function suite1(test){
 		
 			//Verify the result of Is column Name selected?
 			this.waitForAlert(function(response){
-				test.assertMatch(response.data, /true/g, '03--The result of "Is column Name selected?" should be false!');
+				test.assertMatch(response.data, /true/g, '03--The result of "Is column Name selected?" should be TRUE!');
     			this.echo("Alert received: " + response.data);
     			this.sendKeys('body', '\uE00C');
 			});
@@ -136,7 +136,7 @@ casper.test.begin('Select Column test', 9, function suite1(test){
     		this.echo("Alert received: " + response.data);
     		this.sendKeys('body', '\uE00C');
 		});
-		//click the "Get selected rows" button again
+		//click the "Get selected columns" button again
 		this.clickLabel('Get selected columns', 'span');
 	});
 	casper.run(function(){
