@@ -1,6 +1,7 @@
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
+var x = require('casper').selectXPath;
 var screenshotFolder = 'screenshot/ExtendedSelectRow/';
 
 //edit the capser object properties in test instance
@@ -24,8 +25,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('ExtendedSelect Row test case', 3, function suite1(test){
-	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, function pageLoadCheck(){
+casper.gridLoadCheck = function(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){
@@ -34,12 +34,18 @@ casper.test.begin('ExtendedSelect Row test case', 3, function suite1(test){
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
-		}, 10000);
+		}, 10000);	
 
-	});
+};
+
+casper.test.begin('ExtendedSelect Row test case', 6, function suite1(test){
+	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
 	//Select by buttons
+	casper.then(function wait3s(){
+		this.wait(3000);
+	});
 	casper.then(function selectBtn(){
 
 		this.clickLabel('Select', 'button');
@@ -52,7 +58,7 @@ casper.test.begin('ExtendedSelect Row test case', 3, function suite1(test){
 
 		this.echo(rowStatus);
 		utils.dump(selectedId);
-		this.echo(typeof selectedId);
+		//this.echo(typeof selectedId);
 		
 		//check if the style of selected row 0-5 is changed to gridxRowSelected.
 		test.assertEquals(selectedId, ['0','1','2','3','4','5'], '01--The selected ID should be 0-5!');
@@ -83,6 +89,30 @@ casper.test.begin('ExtendedSelect Row test case', 3, function suite1(test){
 
 	});
 
+	//select all button test
+	casper.then(function selectAllBtn(){
+		//reload test page
+		this.reload(this.gridLoadCheck);
+
+		//click the selectAll button in row section 
+		this.then(function(){
+			this.click(x('//table[@class="testboard"]/tbody/tr[2]//button[text()="Select All"]'));
+		});
+		
+		
+		this.then(function verifySelectedId(){
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			utils.dump(rowStatus);
+			var temArr = rowStatus.split('\n');
+			utils.dump(temArr);
+			this.echo(temArr.length);
+			test.assertEquals(temArr.length, 200, '06--The selected rows in rowStatus textArea is 200!')
+		})
+		
+	})
 	//defect#13249
 	//Hold down SHIFT throughout step below
 	//1.click on row id=5(jazz, Andy Narell)
