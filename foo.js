@@ -12,12 +12,12 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.gridLoadCheck = function(){
+var gridLoadCheck = function(){
 		this.waitFor(function check(){
 			return this.exists('div.gridxRowHeaderRow[rowid="0"] td');
 		}, function then(){
 			this.echo('page loaded!');
-			this.capture(screenshotFolder+'originGrid.png');
+			this.capture('originGrid.png');
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
@@ -33,16 +33,9 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
-casper.start('http://idx.ibm.com/dojo_1.10.4/gridx/tests/test_grid_extendedSelect.html', function() {
-    this.waitForSelector('td[role=gridcell]', function loadfinished(){
-    	this.echo(this.getTitle());
-    	//this.capture('foo.png');
-   
-    }, function timeOut(){
-    	this.echo('timeout');
-    }, 10000);
+casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
     
-});
+
 
 casper.then(function testXPath(){
 	
@@ -55,23 +48,42 @@ casper.then(function deselectAll(){
 	this.capture('deselectAll.png');
 });
 
-casper.then(function reload(){
+casper.then(function clickFirstRow(){
 	//this.reload(function(){this.gridLoadCheck()});
 	this.click('div.gridxRowHeaderRow[rowid="0"] td');
-	this.then(function(){
+	/*this.then(function(){
 		this.page.sendEvent('click',)
-	})
+	})*/
 });
 
-casper.then(function sendEvent(){
+casper.then(function shiftClick(){
 
 	this.evaluate(function shiftClick(selector){
-		var shiftClick = new MouseEvent('click', {
-			shiftKey: true,
-			bubbles: true
-		});
 		var ele = document.querySelector(selector);
-		ele.dispatchEvent(shiftClick);
+		//create event via event constructor
+		var mouseDownEvt = new MouseEvent("mousedown",{
+			bubbles:true,
+			cancelable:true,
+			view:window,
+			shiftKey: true
+		});
+
+		// create event in old way
+		var mouseDownEvt = document.createEvent('MouseEvents');
+		mouseDownEvt.initMouseEvent("click", true, true, window, 0, 0, 0, 80, 20, false, false, true, false, 0, null);
+		ele.dispatchEvent(mouseDownEvt);
+
+		//dispatch a shift + mousedown event
+		ele.dispatchEvent(mouseDownEvt);
+
+		var mouseUpEvt = new MouseEvent("mouseup", {
+			bubbles:true,
+			cancelable:true,
+			view:window	
+		});
+		//dispatch a mouseup event
+		ele.dispatchEvent(mouseUpEvt);
+
 	}, 'div.gridxRowHeaderRow[rowid="3"] td');
 
 	this.capture('afterClick.png');
