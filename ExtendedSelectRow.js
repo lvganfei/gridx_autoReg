@@ -38,7 +38,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 6, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 9, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -101,6 +101,7 @@ casper.test.begin('ExtendedSelect Row test case', 6, function suite1(test){
 		
 		
 		this.then(function verifySelectedId(){
+			this.capture(screenshotFolder+'afterSelectAll.png');
 			var rowStatus = this.evaluate(function(){
 				return document.getElementById('rowStatus').value;
 			});
@@ -112,9 +113,77 @@ casper.test.begin('ExtendedSelect Row test case', 6, function suite1(test){
 			test.assertEquals(temArr.length, 200, '06--The selected rows in rowStatus textArea is 200!')
 		})
 		
-	})
+	});
+
+	casper.then(function deSelectAll(){
+		
+		this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+		this.capture(screenshotFolder+'afterDeselectAll.png');
+
+		//verify the value of rowstatus textarea is empty
+		var rowStatus = this.evaluate(function(){
+			return document.getElementById('rowStatus').value;
+		});
+
+		test.assertEquals(rowStatus, '', '07--The selected rows in rowStatus textArea is empty now!');
+
+		var selectedRow = this.evaluate(function(){
+			return grid.select.row.getSelected();
+		});
+
+		test.assertEquals(selectedRow, [], '08--The slected row should be 0!');
+	});
+
 	//defect#13249
 	//Hold down SHIFT throughout step below
+	casper.then(function shiftClick(){
+		this.click('div.gridxRowHeaderRow[rowid="0"] td');
+		this.evaluate(function shiftClick(selector){
+		var ele = document.querySelector(selector);
+		//create event via event constructor
+/*		var mouseDownEvt = new MouseEvent("mousedown",{
+			bubbles:true,
+			cancelable:true,
+			view:window,
+			shiftKey: true
+		});
+
+		//dispatch a mousedown event
+		ele.dispatchEvent(mouseDownEvt);
+
+		var mouseUpEvt = new MouseEvent("mouseup", {
+			bubbles:true,
+			cancelable:true,
+			view:window	
+		});
+
+		//dispatch a shift + mouseup event
+		ele.dispatchEvent(mouseUpEvt);
+	*/
+
+		// create event in old way
+		var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+		mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+		ele.dispatchEvent(mouseDownEvt);
+
+		mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+		ele.dispatchEvent(mouseUpEvt);		
+
+		
+
+	}, 'div.gridxRowHeaderRow[rowid="3"] td');
+	
+	
+	this.capture('afterClick.png');
+
+	var selectedRow = this.evaluate(function(){
+			return grid.select.row.getSelected();
+		});
+
+	test.assertEquals(selectedRow, ["0", "1", "2", "3"], '09--The slected row should be 0-3!');
+	
+});
+
 	//1.click on row id=5(jazz, Andy Narell)
 	//2.click on row id=0(Easy Listening), this shows row id 0-5 highlight, and row id 0-5 selected under selection status as expected
 	//3.click on row id=11(World, Andy Statmen), this shows row id 5-11 highlight, but rows0-11 as selected under selection status

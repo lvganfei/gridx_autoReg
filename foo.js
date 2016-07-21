@@ -40,7 +40,7 @@ casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
 casper.then(function testXPath(){
 	
 	this.click(x('//table[@class="testboard"]/tbody/tr[2]//button[text()="Select All"]'));
-	this.capture('foo.png');
+	this.capture('selectAll.png');
 });
 
 casper.then(function deselectAll(){
@@ -61,19 +61,14 @@ casper.then(function shiftClick(){
 	this.evaluate(function shiftClick(selector){
 		var ele = document.querySelector(selector);
 		//create event via event constructor
-		var mouseDownEvt = new MouseEvent("mousedown",{
+/*		var mouseDownEvt = new MouseEvent("mousedown",{
 			bubbles:true,
 			cancelable:true,
 			view:window,
 			shiftKey: true
 		});
 
-		// create event in old way
-		var mouseDownEvt = document.createEvent('MouseEvents');
-		mouseDownEvt.initMouseEvent("click", true, true, window, 0, 0, 0, 80, 20, false, false, true, false, 0, null);
-		ele.dispatchEvent(mouseDownEvt);
-
-		//dispatch a shift + mousedown event
+		//dispatch a mousedown event
 		ele.dispatchEvent(mouseDownEvt);
 
 		var mouseUpEvt = new MouseEvent("mouseup", {
@@ -81,11 +76,27 @@ casper.then(function shiftClick(){
 			cancelable:true,
 			view:window	
 		});
-		//dispatch a mouseup event
+
+		//dispatch a shift + mouseup event
+		ele.dispatchEvent(mouseUpEvt);
+	*/
+
+		// create event in old way
+		var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+		mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+		ele.dispatchEvent(mouseDownEvt);
+
+		mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
 		ele.dispatchEvent(mouseUpEvt);
 
-	}, 'div.gridxRowHeaderRow[rowid="3"] td');
+		
+		
 
+		
+
+	}, 'div.gridxRowHeaderRow[rowid="3"] td');
+	
+	this.echo(isTrusted, "ERROR");
 	this.capture('afterClick.png');
 });
 
