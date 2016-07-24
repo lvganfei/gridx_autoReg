@@ -38,7 +38,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 9, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 14, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -64,7 +64,7 @@ casper.test.begin('ExtendedSelect Row test case', 9, function suite1(test){
 		test.assertEquals(selectedId, ['0','1','2','3','4','5'], '01--The selected ID should be 0-5!');
 
 		//the value of rowStatus textarea is 0-5
-		test.assertEquals(rowStatus, '0\n1\n2\n3\n4\n5', '02--Select row is right!');
+		test.assertEquals(rowStatus, '0\n1\n2\n3\n4\n5', '02--Select row is 0-5!');
 
 		//the total number of selected row is 6
 		test.assertElementCount('div.gridxRow.gridxRowSelected', 6, '03--The selected rows count is 6!');
@@ -136,65 +136,135 @@ casper.test.begin('ExtendedSelect Row test case', 9, function suite1(test){
 
 	//defect#13249
 	//Hold down SHIFT throughout step below
+	//1.click on row id=5(jazz, Andy Narell)
+	casper.then(function clickId5(){
+		this.click('div.gridxRowHeaderRow[rowid="5"] td');
+	});
+
+	//2.click on row id=0(Easy Listening), this shows row id 0-5 highlight, and row id 0-5 selected under selection status as expected
 	casper.then(function shiftClick(){
-		this.click('div.gridxRowHeaderRow[rowid="0"] td');
+
 		this.evaluate(function shiftClick(selector){
-		var ele = document.querySelector(selector);
-		//create event via event constructor
-/*		var mouseDownEvt = new MouseEvent("mousedown",{
-			bubbles:true,
-			cancelable:true,
-			view:window,
-			shiftKey: true
-		});
+			var ele = document.querySelector(selector);
+			//create event via event constructor
+	/*		var mouseDownEvt = new MouseEvent("mousedown",{
+				bubbles:true,
+				cancelable:true,
+				view:window,
+				shiftKey: true
+			});
 
-		//dispatch a mousedown event
-		ele.dispatchEvent(mouseDownEvt);
+			//dispatch a mousedown event
+			ele.dispatchEvent(mouseDownEvt);
 
-		var mouseUpEvt = new MouseEvent("mouseup", {
-			bubbles:true,
-			cancelable:true,
-			view:window	
-		});
+			var mouseUpEvt = new MouseEvent("mouseup", {
+				bubbles:true,
+				cancelable:true,
+				view:window	
+			});
 
-		//dispatch a shift + mouseup event
-		ele.dispatchEvent(mouseUpEvt);
-	*/
+			//dispatch a shift + mouseup event
+			ele.dispatchEvent(mouseUpEvt);
+		*/
 
-		// create event in old way
-		var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
-		mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
-		ele.dispatchEvent(mouseDownEvt);
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
 
-		mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
-		ele.dispatchEvent(mouseUpEvt);		
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+			ele.dispatchEvent(mouseDownEvt);
+
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+			ele.dispatchEvent(mouseUpEvt);		
 
 		
 
-	}, 'div.gridxRowHeaderRow[rowid="3"] td');
+		}, 'div.gridxRowHeaderRow[rowid="0"] td');
 	
 	
-	this.capture('afterClick.png');
+		this.capture(screenshotFolder+'afterFirstShiftClick.png');
 
-	var selectedRow = this.evaluate(function(){
+		//fetch the selected row via gridx getSelected()
+		var selectedRow = this.evaluate(function(){
 			return grid.select.row.getSelected();
 		});
 
-	test.assertEquals(selectedRow, ["0", "1", "2", "3"], '09--The slected row should be 0-3!');
-	
-});
+		test.assertEquals(selectedRow, ["0", "1", "2", "3", "4", "5"], '09--The slected row should be 0-5!');
 
-	//1.click on row id=5(jazz, Andy Narell)
-	//2.click on row id=0(Easy Listening), this shows row id 0-5 highlight, and row id 0-5 selected under selection status as expected
+		//the total number of selected row is 6
+		test.assertElementCount('div.gridxRow.gridxRowSelected', 6, '10--The selected rows count is 6!');
+
+		var rowStatus = this.evaluate(function(){
+			return document.getElementById('rowStatus').value;
+		});
+	
+		//the value of rowStatus textarea is 0-5
+		test.assertEquals(rowStatus, '0\n1\n2\n3\n4\n5', '11--Select row is 0-5 in rowstatus textarea!');
+	});
+
+	
+	
 	//3.click on row id=11(World, Andy Statmen), this shows row id 5-11 highlight, but rows0-11 as selected under selection status
+	casper.then(function secondShiftClick(){
+		this.evaluate(function shiftClick(selector){
+			var ele = document.querySelector(selector);
+			//create event via event constructor
+	/*		var mouseDownEvt = new MouseEvent("mousedown",{
+				bubbles:true,
+				cancelable:true,
+				view:window,
+				shiftKey: true
+			});
+
+			//dispatch a mousedown event
+			ele.dispatchEvent(mouseDownEvt);
+
+			var mouseUpEvt = new MouseEvent("mouseup", {
+				bubbles:true,
+				cancelable:true,
+				view:window	
+			});
+
+			//dispatch a shift + mouseup event
+			ele.dispatchEvent(mouseUpEvt);
+		*/
+
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+			ele.dispatchEvent(mouseDownEvt);
+
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+			ele.dispatchEvent(mouseUpEvt);		
+
+		
+
+		}, 'div.gridxRowHeaderRow[rowid="11"] td');
+
+		//capture screenshot after second shift click
+		this.capture(screenshotFolder+'afterSecondShiftClick.png');
+
+		//the total number of selected row is 7 now
+		test.assertElementCount('div.gridxRow.gridxRowSelected', 7, '12--The selected rows count is 7!');
+
+		var rowStatus = this.evaluate(function(){
+			return document.getElementById('rowStatus').value;
+		});
+	
+		//the value of rowStatus textarea is 5-11
+		test.assertEquals(rowStatus, '5\n6\n7\n8\n9\n10\n11', '13--Select row is 5-11!');
+
+		//the 0-4 rows are not selected now
+		test.assertDoesntExist('div.gridxRowSelected[rowid="4"]', '14--The 4th row with gridxRowSelected class should NOT exist!');
+
+
+	});
+
 	//for cell selection part:
 	//1.Click on cell 2,Genre(Jazz)
 	//2.Hold down SHIFT and click on cell 3, Artist(Emerson), now the selected id are ok: [2, Genre],[3,Genre],[2,Artist],[3,Artist]
 	//3. click on cell 1,Genre(Classic Rock), now the selection is highlighted but selected ids are: [1,Genre],[2,Genre],[3,Genre], not [1,Genre],[2,Genre]
-	//defect#12789 for dnd_rearrange.html, triggerOnCell is true
-	//Use the mouse click to select a row
-	//Use the up/down arrow to move the cell focus up/down few rows
-	//use the space key tring to select te row where the cell focus is in. This row not get selected sometime
+	
 
 
 	casper.run(function(){

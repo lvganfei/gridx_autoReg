@@ -1,9 +1,9 @@
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
-var screenshotFolder = 'screenshot/Dnd/';
+var screenshotFolder = 'screenshot/DndColumn/';
 
-casper.options.verbose = false;
+casper.options.verbose = true;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
 
@@ -24,7 +24,7 @@ casper.refreshGrid = function(eleId){
 };
 
 casper.test.begin('Dnd', 2, function suite1(test){
-	casper.start(cases.testPagePrefix+cases.DND, function pageLoadCheck(){
+	casper.start(cases.testPagePrefix+cases.DndColumn, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){

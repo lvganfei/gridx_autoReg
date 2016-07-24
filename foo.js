@@ -33,9 +33,23 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
+casper.on('click', function(e){
+	this.echo('clciked element is: '+e);
+});
+
+casper.on('remote.message', function(msg) {
+    this.echo('remote message caught: ' + msg);
+});
+
 casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
     
-
+casper.then(function setup(){
+	this.evaluate(function addEventListener(){
+		document.body.addEventListener('click', function(e){
+			console.log('the shiftKey of event is: '+e.shiftKey);
+		});
+	});
+});
 
 casper.then(function testXPath(){
 	
@@ -54,49 +68,17 @@ casper.then(function clickFirstRow(){
 	/*this.then(function(){
 		this.page.sendEvent('click',)
 	})*/
+
+
 });
 
 casper.then(function shiftClick(){
 
-	this.evaluate(function shiftClick(selector){
-		var ele = document.querySelector(selector);
-		//create event via event constructor
-/*		var mouseDownEvt = new MouseEvent("mousedown",{
-			bubbles:true,
-			cancelable:true,
-			view:window,
-			shiftKey: true
-		});
-
-		//dispatch a mousedown event
-		ele.dispatchEvent(mouseDownEvt);
-
-		var mouseUpEvt = new MouseEvent("mouseup", {
-			bubbles:true,
-			cancelable:true,
-			view:window	
-		});
-
-		//dispatch a shift + mouseup event
-		ele.dispatchEvent(mouseUpEvt);
-	*/
-
-		// create event in old way
-		var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
-		mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
-		ele.dispatchEvent(mouseDownEvt);
-
-		mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
-		ele.dispatchEvent(mouseUpEvt);
-
-		
-		
-
-		
-
-	}, 'div.gridxRowHeaderRow[rowid="3"] td');
+	var shiftEndEle = this.getElementBounds('div.gridxRowHeaderRow[rowid="4"] td');
+	this.page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
+	this.page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);//shiftEndEle.left+2, shiftEndEle.top+2
 	
-	this.echo(isTrusted, "ERROR");
+	
 	this.capture('afterClick.png');
 });
 
