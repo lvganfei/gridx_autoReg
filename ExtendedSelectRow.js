@@ -38,7 +38,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 14, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -49,6 +49,7 @@ casper.test.begin('ExtendedSelect Row test case', 14, function suite1(test){
 	casper.then(function selectBtn(){
 
 		this.clickLabel('Select', 'button');
+		this.capture(screenshotFolder+'afterSelect5row.png');
 
 		var rowStatus = this.evaluate(function(){
 			return document.getElementById('rowStatus').value;
@@ -56,9 +57,9 @@ casper.test.begin('ExtendedSelect Row test case', 14, function suite1(test){
 
 		var selectedId = this.getElementsAttribute('div.gridxRow.gridxRowSelected', 'rowid');
 
-		this.echo(rowStatus);
+		/*this.echo(rowStatus);
 		utils.dump(selectedId);
-		//this.echo(typeof selectedId);
+		this.echo(typeof selectedId);*/
 		
 		//check if the style of selected row 0-5 is changed to gridxRowSelected.
 		test.assertEquals(selectedId, ['0','1','2','3','4','5'], '01--The selected ID should be 0-5!');
@@ -258,7 +259,79 @@ casper.test.begin('ExtendedSelect Row test case', 14, function suite1(test){
 		test.assertDoesntExist('div.gridxRowSelected[rowid="4"]', '14--The 4th row with gridxRowSelected class should NOT exist!');
 
 
+		//reload test page after step
+		this.reload(this.gridLoadCheck);
 	});
+
+	
+	casper.then(function singleSelectByMouse(){
+		this.click('div.gridxRowHeaderRow[rowid="5"] td');
+		var classOf5;
+		var rowStatus;
+
+		this.then(function clickOneRow(){
+			classOf5 = this.getElementAttribute('div.gridxRowHeaderRow[rowid="5"]', 'class');
+			test.assertMatch(classOf5, /gridxRowSelected/g, '15--Now the 5th row should has selected class!');
+
+			rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+			test.assertEquals(rowStatus,'5', '16--The 5th row should be selected!');
+		});
+
+		
+
+		this.then(function clickAnotherRow(){
+
+			this.click('div.gridxRowHeaderRow[rowid="8"] td');
+			this.then(function checkSelected(){
+
+				classOf5 = this.getElementAttribute('div.gridxRowHeaderRow[rowid="5"]', 'class');
+				this.echo(classOf5);
+
+				test.assertEquals(classOf5.indexOf('gridxRowSelected'), -1, '17--Now the 5th row is unselected!');
+
+				rowStatus = this.evaluate(function(){
+					return document.getElementById('rowStatus').value;
+				});
+
+				test.assertEquals(rowStatus,'8', '18--The 8th row should be selected now!');
+
+			});
+			
+		});
+
+
+	});
+
+	
+	casper.then(function ctrlClick(){
+		//Ctrl click the 4th row
+		this.evaluate(function ctrlClikRow(selector){
+			var ele = document.querySelector(selector);
+
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseDownEvt);
+
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseUpEvt);		
+
+
+		}, 'div.gridxRowHeaderRow[rowid="4"] td');
+
+		this.then(function checkSelected(){
+			this.capture(screenshotFolder+'afterCtrlClick.png');
+			var rowStatus = this.evaluate(function(){
+			return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus,'4\n8', '19--The 4th and 8th row should be selected now!');
+		});
+		
+	})
 
 	//for cell selection part:
 	//1.Click on cell 2,Genre(Jazz)
