@@ -33,8 +33,8 @@ casper.on('resource.error', function(error){
 	this.echo('Resource error code: '+ error.errorCode+" error string is: "+error.errorString+" error url is: "+error.url+' id: '+error.id,'ERROR');
 });
 
-casper.on('click', function(e){
-	this.echo('clciked element is: '+e);
+casper.on('keypress', function(e){
+	this.echo('pressed element is: '+e);
 });
 
 casper.on('remote.message', function(msg) {
@@ -45,8 +45,9 @@ casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
     
 casper.then(function setup(){
 	this.evaluate(function addEventListener(){
-		document.body.addEventListener('click', function(e){
-			console.log('the shiftKey of event is: '+e.shiftKey);
+		document.body.addEventListener('keydown', function(e){
+			console.log('the char code of event is: '+e.keyIdentifier);
+			console.log('target is: '+e.target);
 		});
 	});
 });
@@ -62,24 +63,14 @@ casper.then(function deselectAll(){
 	this.capture('deselectAll.png');
 });
 
-casper.then(function clickFirstRow(){
-	//this.reload(function(){this.gridLoadCheck()});
-	this.click('div.gridxRowHeaderRow[rowid="0"] td');
-	/*this.then(function(){
-		this.page.sendEvent('click',)
-	})*/
 
-
-});
 
 casper.then(function shiftClick(){
 
-	var shiftEndEle = this.getElementBounds('div.gridxRowHeaderRow[rowid="4"] td');
-	this.page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
-	this.page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);//shiftEndEle.left+2, shiftEndEle.top+2
-	
-	
-	this.capture('afterClick.png');
+	this.sendKeys('#rowStart', '20', {reset:true});
+	this.sendKeys('div.gridxRowHeaderRow[rowid="2"] td', ' ', {keepFocus:true});
+
+	this.capture('aaaa.png');
 });
 
 

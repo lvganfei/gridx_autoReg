@@ -91,6 +91,7 @@ casper.test.begin('Select Row test case', 9, function suite1(test){
 		this.waitForAlert(function(response){
 			test.assertMatch(response.data, /false/g, '05--The result of "Is row 5 selected?" should be false!');
     		this.echo("Alert received: " + response.data);
+    		//dismiss the alert window
     		this.sendKeys('body', '\uE00C');
 		});
 		this.clickLabel('Is row 5 selected?', 'span');		
@@ -107,6 +108,7 @@ casper.test.begin('Select Row test case', 9, function suite1(test){
 		this.waitForAlert(function(response){
 			test.assertMatch(response.data, /true/g, '06--The result of "Is row 5 selected?" should be true!')
     		this.echo("Alert received: " + response.data);
+    		//dismiss the alert window
     		this.sendKeys('body', '\uE00C');
 		});
 		//click the "Is row 5 selected?" button
@@ -119,6 +121,7 @@ casper.test.begin('Select Row test case', 9, function suite1(test){
 		this.waitForAlert(function(response){
 			test.assertMatch(response.data, /4,5/g, '07--The result of selected rows should be 4 and 5!')
     		this.echo("Alert received: " + response.data);
+    		//dismiss the alert window
     		this.sendKeys('body', '\uE00C');
 		});
 		//click the "Get selected rows" button
@@ -133,6 +136,7 @@ casper.test.begin('Select Row test case', 9, function suite1(test){
 		this.waitForAlert(function(response){
 			test.assertEquals(response.data, 'selected rows: ', '08--The result of "Selected rows" now should be empty!')
     		this.echo("Alert received: " + response.data);
+    		//dismiss the alert window
     		this.sendKeys('body', '\uE00C');
 		});
 		//click the "Get selected rows" button again

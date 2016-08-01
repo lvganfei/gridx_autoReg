@@ -38,7 +38,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 22, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -116,6 +116,7 @@ casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
 		
 	});
 
+	//Deselect All button test
 	casper.then(function deSelectAll(){
 		
 		this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
@@ -263,7 +264,7 @@ casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
 		this.reload(this.gridLoadCheck);
 	});
 
-	
+	//Sinle select/deselect by mouse click
 	casper.then(function singleSelectByMouse(){
 		this.click('div.gridxRowHeaderRow[rowid="5"] td');
 		var classOf5;
@@ -304,7 +305,7 @@ casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
 
 	});
 
-	
+	//MultiSelect by mouse when holding CTRL
 	casper.then(function ctrlClick(){
 		//Ctrl click the 4th row
 		this.evaluate(function ctrlClikRow(selector){
@@ -325,14 +326,96 @@ casper.test.begin('ExtendedSelect Row test case', 19, function suite1(test){
 		this.then(function checkSelected(){
 			this.capture(screenshotFolder+'afterCtrlClick.png');
 			var rowStatus = this.evaluate(function(){
-			return document.getElementById('rowStatus').value;
+				return document.getElementById('rowStatus').value;
 			});
 
-			test.assertEquals(rowStatus,'4\n8', '19--The 4th and 8th row should be selected now!');
+			test.assertEquals(rowStatus,'4\n8', '19--Now the 4th and 8th row should be selected now!');
 		});
 		
-	})
+	});
 
+	//Single Deslect byu mouse Holding CTRL
+	casper.then(function deSelectByCtrl(){
+		var classOf8;
+		var rowStatus;
+
+		//Ctrl click the 8th row
+		this.evaluate(function ctrlClikRow(selector){
+			var ele = document.querySelector(selector);
+
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseDownEvt);
+
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseUpEvt);		
+
+
+		}, 'div.gridxRowHeaderRow[rowid="8"] td');
+
+		this.then(function checkSelected(){
+			this.capture(screenshotFolder+'afterCtrlClickAgain.png');
+			rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			//check the rowStatus textarea
+			test.assertEquals(rowStatus,'4', '20--Now the 4th and 8th row should be selected now!');
+
+			//check the class of 8th row
+			classOf8 = this.getElementAttribute('div.gridxRowHeaderRow[rowid="8"]', 'class');
+			test.assertEquals(classOf8.indexOf('gridxRowSelected'), -1, '21--Now the 8th row is unselected!');
+
+			this.then(function tearDown(){
+				//Deselect all after test
+				this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+			})
+		});
+
+	});
+
+	//swipe select by mouse(mousedown and mouseup)
+	casper.then(function swipeSelect(){
+		//mouse down on the 3rd row header. Use this.mous.action() instead of this.mouseEvent()!
+		this.mouse.down('div.gridxRowHeaderRow[rowid="3"] td');
+
+		//this.mouseEvent('mousedown', 'div.gridxRowHeaderRow[rowid="3"] td');
+		//mouse move and up on the 7th row header
+		this.mouse.move('div.gridxRowHeaderRow[rowid="7"] td');
+		this.mouse.up('div.gridxRowHeaderRow[rowid="7"] td');
+		//this.mouseEvent('mousemove', 'div.gridxRowHeaderRow[rowid="7"] td');
+		//this.mouseEvent('mouseup', 'div.gridxRowHeaderRow[rowid="7"] td');
+
+		this.then(function checkSwipeResult(){
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+			this.capture(screenshotFolder+'afterSwipe.png');
+
+			test.assertEquals(rowStatus, '3\n4\n5\n6\n7', '22--The 3-7 rows are selected!');
+
+			this.then(function tearDown(){
+				//Deselect all after test
+				this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+				this.refreshGrid('grid');
+				
+			})
+
+		})
+	});
+
+	//a11y select by keyboard(SPACE key)
+	casper.then(function selectByKeyboard(){
+		this.sendKeys('div.gridxRowHeaderRow[rowid="2"] td', '\uE00D');
+		//this.page.sendEvent('keypress', this.page.event.key.Space)
+		this.then(function checkKeyboadResult(){
+			this.echo('the class of 2th row is: '+this.getElementAttribute('div.gridxRowHeaderRow[rowid="2"]', 'class'));
+			this.capture(screenshotFolder+'afterSpaceKey.png');
+		})
+		
+	});
 	//for cell selection part:
 	//1.Click on cell 2,Genre(Jazz)
 	//2.Hold down SHIFT and click on cell 3, Artist(Emerson), now the selected id are ok: [2, Genre],[3,Genre],[2,Artist],[3,Artist]
