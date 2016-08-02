@@ -124,6 +124,29 @@ casper.then(function deselectAll(){
 });
 
 
+
+casper.then(function shiftClick(){
+
+	this.evaluate(function(selector){
+		var ele = document.querySelector(selector), spacePress = document.createEvent("KeyboardEvent");
+		spacePress.initKeyboardEvent("keypress",       // typeArg,                                                           
+                   true,             // canBubbleArg,                                                        
+                   true,             // cancelableArg,                                                       
+                   null,             // viewArg,  Specifies UIEvent.view. This value may be null.     
+                   false,            // ctrlKeyArg,                                                               
+                   false,            // altKeyArg,                                                        
+                   false,            // shiftKeyArg,                                                      
+                   false,            // metaKeyArg,                                                       
+                    32,               // keyCodeArg,                                                      
+         32);              // charCodeArg);
+		ele.dispatchEvent(spacePress);
+	}, 'div.gridxRowHeaderRow[rowid="2"]');
+	//this.sendKeys('div.gridxRowHeaderRow[rowid="2"]', '\uE00D');
+
+	this.capture('aaaa.png');
+});
+
+
 	
    
   
