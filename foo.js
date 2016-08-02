@@ -46,10 +46,70 @@ casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
 casper.then(function setup(){
 	this.evaluate(function addEventListener(){
 		document.body.addEventListener('keydown', function(e){
-			console.log('the char code of event is: '+e.keyIdentifier);
-			console.log('target is: '+e.target);
+			console.log('the key of event is: '+e.keyIdentifier+' keyCode is: '+e.keyCode);
+			console.log('target is: '+e.target.tagName+'.('+e.target.className+')');
+			console.log('active element is: '+document.activeElement.tagName+'.('+document.activeElement.className+')');
 		});
+		grid.onRowHeaderCellKeyDown= function(e){console.log(e.key||e.charCode); console.log('now in grid rowheader: '+document.activeElement.tagName+'.('+document.activeElement.className+')')}
 	});
+});
+
+
+casper.then(function tabKey(){
+
+/*	var focusedEle; 
+	
+	
+	do{
+
+			this.page.sendEvent('keypress', this.page.event.key.Tab);
+			
+			focusedEle = this.evaluate(function getfocused(){
+				return document.activeElement.className;
+
+			});
+			this.echo(focusedEle,'ERROR');
+		
+	}while (focusedEle.indexOf('gridxRowHeaderCell') == -1);*/
+
+	//press TAB 3 times
+	for(var i=0;i<3;i++){
+		this.page.sendEvent('keypress', this.page.event.key.Tab);
+	}
+	
+
+
+	
+});
+
+casper.then(function spaceKey(){
+
+	//this.refreshGrid('grid');
+	//workaround for the bug not retain focus in rowheader from previous step
+	this.page.sendEvent('keypress', this.page.event.key.Tab);
+	
+	this.page.sendEvent('keypress', this.page.event.key.Arrowdown);
+
+	var focusedEle = this.evaluate(function getfocused(){
+				return document.activeElement.className;
+
+	});
+
+	var firstRow = this.evaluate(function(){
+		return document.querySelector('.gridxRowHeaderRow[rowid="0"] td').className;
+	});
+
+	this.echo('Now in new step: '+focusedEle,'ERROR');
+	this.echo('class of first row header: '+firstRow, 'ERROR');
+	this.page.sendEvent('keypress', this.page.event.key.Down);
+	this.page.sendEvent('keypress', this.page.event.key.Space);
+	this.then(function(){
+		this.capture('aaaa.png');
+	})
+});
+
+casper.then(function(){
+	this.bypass(2);
 });
 
 casper.then(function testXPath(){
@@ -61,16 +121,6 @@ casper.then(function testXPath(){
 casper.then(function deselectAll(){
 	this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
 	this.capture('deselectAll.png');
-});
-
-
-
-casper.then(function shiftClick(){
-
-	this.sendKeys('#rowStart', '20', {reset:true});
-	this.sendKeys('div.gridxRowHeaderRow[rowid="2"] td', ' ', {keepFocus:true});
-
-	this.capture('aaaa.png');
 });
 
 
