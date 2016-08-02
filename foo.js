@@ -72,10 +72,7 @@ casper.then(function tabKey(){
 		
 	}while (focusedEle.indexOf('gridxRowHeaderCell') == -1);*/
 
-	//press TAB 3 times
-	for(var i=0;i<3;i++){
-		this.page.sendEvent('keypress', this.page.event.key.Tab);
-	}
+
 	
 
 
@@ -84,11 +81,14 @@ casper.then(function tabKey(){
 
 casper.then(function spaceKey(){
 
+		//press TAB 3 times
+	for(var i=0;i<3;i++){
+		this.page.sendEvent('keypress', this.page.event.key.Tab);
+	}
+
 	//this.refreshGrid('grid');
 	//workaround for the bug not retain focus in rowheader from previous step
-	this.page.sendEvent('keypress', this.page.event.key.Tab);
-	
-	this.page.sendEvent('keypress', this.page.event.key.Arrowdown);
+	//this.page.sendEvent('keypress', this.page.event.key.Tab);
 
 	var focusedEle = this.evaluate(function getfocused(){
 				return document.activeElement.className;
@@ -125,7 +125,7 @@ casper.then(function deselectAll(){
 
 
 
-casper.then(function shiftClick(){
+/*casper.then(function shiftClick(){
 
 	this.evaluate(function(selector){
 		var ele = document.querySelector(selector), spacePress = document.createEvent("KeyboardEvent");
@@ -144,7 +144,7 @@ casper.then(function shiftClick(){
 	//this.sendKeys('div.gridxRowHeaderRow[rowid="2"]', '\uE00D');
 
 	this.capture('aaaa.png');
-});
+});*/
 
 
 	
