@@ -18,6 +18,10 @@ casper.on('resource.error', function(error){
 	this.echo('[Resource error code]: '+ error.errorCode+" [error string]: "+error.errorString+" [error url]: "+error.url+' [id]: '+error.id,'ERROR');
 });
 
+casper.on('remote.message', function(msg) {
+    this.echo('remote message caught: ' + msg, 'INFO');
+});
+
 //refresh grid function
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -38,7 +42,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 22, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 25, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -107,10 +111,11 @@ casper.test.begin('ExtendedSelect Row test case', 22, function suite1(test){
 				return document.getElementById('rowStatus').value;
 			});
 
-			utils.dump(rowStatus);
 			var temArr = rowStatus.split('\n');
+			
+			/*utils.dump(rowStatus);
 			utils.dump(temArr);
-			this.echo(temArr.length);
+			this.echo(temArr.length);*/
 			test.assertEquals(temArr.length, 200, '06--The selected rows in rowStatus textArea is 200!')
 		})
 		
@@ -399,23 +404,97 @@ casper.test.begin('ExtendedSelect Row test case', 22, function suite1(test){
 			this.then(function tearDown(){
 				//Deselect all after test
 				this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
-				this.refreshGrid('grid');
+				this.reload(this.gridLoadCheck);
 				
 			})
 
 		})
 	});
 
+	
 	//a11y select by keyboard(SPACE key)
-	casper.then(function selectByKeyboard(){
-		this.sendKeys('div.gridxRowHeaderRow[rowid="2"] td', '\uE00D');
-		//this.page.sendEvent('keypress', this.page.event.key.Space)
-		this.then(function checkKeyboadResult(){
-			this.echo('the class of 2th row is: '+this.getElementAttribute('div.gridxRowHeaderRow[rowid="2"]', 'class'));
-			this.capture(screenshotFolder+'afterSpaceKey.png');
-		})
+	casper.then(function selectBySpaceKey(){
+
+		//press TAB 3 times
+		for(var i=0;i<3;i++){
+			this.page.sendEvent('keypress', this.page.event.key.Tab);
+		}
 		
+
+		this.then(function operation(){
+
+			//workaround for the bug not retain focus in rowheader from previous step
+			this.page.sendEvent('keypress', this.page.event.key.Tab);
+
+			//press Arrow down key twice focusing on the 3th row and press space key
+			this.then(function pressDownKey(){
+				this.page.sendEvent('keypress', this.page.event.key.Down);
+				this.page.sendEvent('keypress', this.page.event.key.Down);
+			});
+			
+			this.then(function pressSpaceKey(){
+				this.page.sendEvent('keypress', this.page.event.key.Space);
+			})
+
+			
+
+		});
+
+		this.then(function checkResult(){
+			
+			var rowStatus, classofRow;
+			
+			this.capture(screenshotFolder+'afterSpaceKey.png');
+
+			rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			// get the class of row#2
+			classofRow = this.getElementAttribute('div.gridxRow[rowid="2"]', 'class');
+
+			test.assertEquals(rowStatus, '2', '23--The row#2 get selected!');
+
+			test.assertMatch(classofRow, /gridxRowSelected/g, '24--The class of row#2 has selected theme!');
+		})
+	
+	
 	});
+
+	//A11y: multi selection by keyboard (SHIFT+ARROW)
+	casper.then(function multiSelectByKeyboard(){
+
+		//click the rowheader#6 for test begaining
+		this.click('div.gridxRowHeaderRow[rowid="6"] td');	
+
+		//press shift+arrow down once
+		this.then(function(){
+			this.page.sendEvent('keypress', this.page.event.key.Down, null, null, 0x02000000);
+		});
+
+		this.wait(1000);
+
+		this.echo('here a gridx or phantomjs bug exists, shift+ArrowDown key can only press once, second press will make casperjs loss response!', 'ERROR');
+/*		here a gridx or phantomjs bug exists, after the first shift+Down key, the second key press make the casperjs crack down
+		this.then(function(){
+			this.page.sendEvent('keypress', this.page.event.key.Down, null, null, 0x02000000);
+
+		});*/
+
+
+		this.then(function checkReult(){
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			this.capture(screenshotFolder+'afterShiftDownPressed.png');
+
+			test.assertEquals(rowStatus, '6\n7', '25--The 6,7 rows should be selected!');
+
+		})
+
+	});
+
 	//for cell selection part:
 	//1.Click on cell 2,Genre(Jazz)
 	//2.Hold down SHIFT and click on cell 3, Artist(Emerson), now the selected id are ok: [2, Genre],[3,Genre],[2,Artist],[3,Artist]
