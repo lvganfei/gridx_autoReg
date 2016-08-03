@@ -16,6 +16,10 @@ casper.on('resource.error', function(error){
 	this.echo('[Resource error code]: '+ error.errorCode+" [error string]: "+error.errorString+" [error url]: "+error.url+' [id]: '+error.id,'ERROR');
 });
 
+casper.on('remote.message', function(msg) {
+    this.echo('remote message caught: ' + msg, 'INFO');
+});
+
 //refresh grid function, eleId is the id of grid you want to refresh.
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
