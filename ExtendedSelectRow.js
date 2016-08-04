@@ -42,7 +42,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 31, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -180,7 +180,7 @@ casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
 			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
 			ele.dispatchEvent(mouseDownEvt);
 
-			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, true, false, 0, null);
 			ele.dispatchEvent(mouseUpEvt);		
 
 		
@@ -241,7 +241,7 @@ casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
 			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
 			ele.dispatchEvent(mouseDownEvt);
 
-			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, true, false, 0, null);
 			ele.dispatchEvent(mouseUpEvt);		
 
 		
@@ -402,8 +402,8 @@ casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
 			test.assertEquals(rowStatus, '3\n4\n5\n6\n7', '22--The 3-7 rows are selected!');
 
 			this.then(function tearDown(){
-				//Deselect all after test
-				this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+				//reload page after test
+				//this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
 				this.reload(this.gridLoadCheck);
 				
 			})
@@ -599,7 +599,78 @@ casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
 
 			test.assertEquals(rowStatus, '4\n6\n8', '29--Now row 4,6,8 should be selected!');
 
+		});
+
+		this.then(function tearDown(){
+			
+			//Deselect all after test
+			this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+
 		})
+		
+	});
+
+
+	//Shift click on cell to multi select
+	casper.then(function shiftClickOnCell(){
+
+		//shift click a cell in 3th row first for test beginning
+		this.evaluate(function shiftClick(selector){
+				
+				var ele = document.querySelector(selector);
+				
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+				ele.dispatchEvent(mouseDownEvt);
+
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, true, false, 0, null);
+				ele.dispatchEvent(mouseUpEvt);		
+
+			
+
+			}, 'div.gridxRow[rowid="3"] td[colid="Genre"]');
+
+		//now shift click 7th row
+		this.then(function ShiftClickOnCell(){
+			this.evaluate(function shiftClick(selector){
+				
+				var ele = document.querySelector(selector);
+				
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+				ele.dispatchEvent(mouseDownEvt);
+
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, true, false, 0, null);
+				ele.dispatchEvent(mouseUpEvt);		
+
+			
+
+			}, 'div.gridxRow[rowid="7"] td[colid="Genre"]');
+		});
+		
+		this.then(function checkResult(){
+			this.capture(screenshotFolder+'afterShiftClickOnCell.png');
+
+			//fetch the selected row via gridx getSelected()
+			var selectedRow = this.evaluate(function(){
+				return grid.select.row.getSelected();
+			});
+
+			test.assertEquals(selectedRow, ["3", "4", "5", "6", "7"], '30--The slected row should be 0-5!');
+
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+		
+			//the value of rowStatus textarea is 3-7
+			test.assertEquals(rowStatus, '3\n4\n5\n6\n7', '31--Select row is 3-7 in rowstatus textarea!');
+		})
+	
 		
 	});
 
