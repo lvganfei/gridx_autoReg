@@ -130,38 +130,9 @@ casper.then(function multiSelectByKeyboard(){
 		this.then(function firstDwon(){
 			this.sendKeys('#grid',this.page.event.key.Down, {modifiers:'shift'});
 			//this.page.sendEvent('keypress', this.page.event.key.Down, null, null, 0x02000000);
-			this.capture('afterFirstDown.png');
 		});
 
-		this.then(function refreshGrid(){
-			//this.refreshGrid('grid');
 
-		});
-
-		
-
-		this.wait(1000);
-
-		this.then(function secondDwon(){
-			focusedEle = this.evaluate(function(){
-				return document.activeElement.className;
-			});
-
-			this.echo('2nd focused ele is: '+focusedEle, 'INFO');
-			//this.page.sendEvent('keypress', this.page.event.key.Down, null, null, 0x02000000);
-
-
-			this.sendKeys('#grid',this.page.event.key.Down, {modifiers:'shift'});
-			this.capture('afterSecondDown.png');
-		});
-		
-		this.wait(1000);
-
-		this.then(function thirdDown(){
-			//this.page.sendEvent('keypress', this.page.event.key.Down, null, null, 0x02000000);
-			this.sendKeys('#grid',this.page.event.key.Down, {modifiers:'shift'});
-
-		});
 		
 		
 
@@ -170,11 +141,47 @@ casper.then(function multiSelectByKeyboard(){
 				return document.getElementById('rowStatus').value;
 			});
 
-			this.echo(rowStatus);
+			this.echo(rowStatus, 'INFO');
 			this.capture('afterShiftDownPressed.png');
 
+			var selected = this.getElementInfo('#rowStatus');
+			utils.dump(selected);
 			//test.assertEquals(rowStatus, '2\n3\n4', '25--The 2,3,4 rows should be selected!');
 
+		})
+
+	});
+
+casper.then(function openTriggerOnCell(){
+
+	this.evaluate(function(){
+		grid.select.row.triggerOnCell = true;
+	})
+
+});
+
+casper.then(function singleSelectOnCell(){
+	this.click('div.gridxRow[rowid="5"] td[colid="Genre"]');
+	this.capture('afterclickCell.png');
+});
+
+	casper.then(function multiSelectOnCell(){
+
+		//swipe select 5-8 row
+		this.mouse.down('div.gridxRow[rowid="5"] td[colid="Genre"]');
+		this.mouse.move('div.gridxRow[rowid="8"] td[colid="Genre"]');
+		this.mouse.up('div.gridxRow[rowid="8"] td[colid="Genre"]');
+
+		this.then(function checkReult(){
+			
+			this.capture('afterSwipeOnCell.png');
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			this.echo(rowStatus, 'INFO');
+			//test.assertEquals(rowStatus, '5\n6\n7\n8', '27--The row#5-8 should be selected by swiping the cell!');
 		})
 
 	});

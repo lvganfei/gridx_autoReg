@@ -42,7 +42,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 25, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 27, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -493,6 +493,114 @@ casper.test.begin('ExtendedSelect Row test case', 25, function suite1(test){
 
 		})
 
+	});
+
+
+	/*Turn on triggerOnCell*/
+	casper.then(function openTriggerOnCell(){
+
+		this.evaluate(function(){
+			grid.select.row.triggerOnCell = true;
+		})
+
+	});
+
+	casper.then(function singleSelectOnCell(){
+
+		//click the Genre cell in the row#5
+		this.click('div.gridxRow[rowid="5"] td[colid="Genre"]');
+		
+		this.then(function checkReult(){
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus, '5', '26--The row#5 should be selected by clicking the cell!');
+		})	
+	});
+
+	//multi select by mouse swipe
+	casper.then(function multiSelectOnCell(){
+
+		//swipe select 5-8 row
+		this.mouse.down('div.gridxRow[rowid="5"] td[colid="Genre"]');
+		this.mouse.move('div.gridxRow[rowid="8"] td[colid="Genre"]');
+		this.mouse.up('div.gridxRow[rowid="8"] td[colid="Genre"]');
+
+		this.then(function checkReult(){
+			
+			this.capture(screenshotFolder+'afterSwipeOnCell.png');
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus, '5\n6\n7\n8', '27--The row#5-8 should be selected by swiping the cell!');
+		})
+
+	});
+
+	//multi select by holding CTRL key and clicking on cell
+	casper.then(function multiSelectOnCellByCtrl(){
+
+		//click the row#4
+		this.click('div.gridxRow[rowid="4"] td[colid="Genre"]');
+
+		this.then(function checkPrecon(){
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus,'4', '28--Now the former 5-8 row unslected and row#4 should be selected!');
+		});
+
+		//click the row#6 when holding CTRL
+		this.then(function CtrlClickOnCell6(){
+			this.evaluate(function ctrlClikRow(selector){
+			var ele = document.querySelector(selector);
+
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseDownEvt);
+
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, true, false, false, false, 0, null);
+			ele.dispatchEvent(mouseUpEvt);		
+
+
+			}, 'div.gridxRow[rowid="6"] td[colid="Genre"]');
+		});
+
+		//click the row#8 when holding CTRL
+		this.then(function CtrlClickOnCell8(){
+			this.evaluate(function ctrlClikRow(selector){
+				var ele = document.querySelector(selector);
+
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+				ele.dispatchEvent(mouseDownEvt);
+
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, true, false, false, false, 0, null);
+				ele.dispatchEvent(mouseUpEvt);		
+
+
+			}, 'div.gridxRow[rowid="8"] td[colid="Genre"]');
+		});
+
+		//now 4,6,8 row should be selected
+		this.then(function checkReult(){
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus, '4\n6\n8', '29--Now row 4,6,8 should be selected!');
+
+		})
+		
 	});
 
 	//for cell selection part:
