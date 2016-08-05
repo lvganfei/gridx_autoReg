@@ -42,7 +42,7 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('ExtendedSelect Row test case', 31, function suite1(test){
+casper.test.begin('ExtendedSelect Row test case', 33, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, this.gridLoadCheck);
 
 	//test case start here
@@ -505,6 +505,7 @@ casper.test.begin('ExtendedSelect Row test case', 31, function suite1(test){
 
 	});
 
+	//single select on cell
 	casper.then(function singleSelectOnCell(){
 
 		//click the Genre cell in the row#5
@@ -611,7 +612,7 @@ casper.test.begin('ExtendedSelect Row test case', 31, function suite1(test){
 	});
 
 
-	//Shift click on cell to multi select
+	//Shift click on cells to multi select
 	casper.then(function shiftClickOnCell(){
 
 		//shift click a cell in 3th row first for test beginning
@@ -674,6 +675,97 @@ casper.test.begin('ExtendedSelect Row test case', 31, function suite1(test){
 		
 	});
 
+	 //holding CTRL, swipe multiple rows
+	casper.then(function multiSelectbyCtrlSwipe(){
+
+		//click the row#3 firstly
+		this.click('div.gridxRow[rowid="3"] td[colid="Genre"]');
+
+		this.then(function(){
+			this.evaluate(function ctrlClikRow(startSelector, destSelector){
+				var startEle = document.querySelector(startSelector), destEle = document.querySelector(destSelector);
+
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseMoveEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				//mouse down on the start element
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+				startEle.dispatchEvent(mouseDownEvt);
+
+				//mouseover to the destination element
+				mouseMoveEvt.initMouseEvent('mouseover', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+				destEle.dispatchEvent(mouseMoveEvt);
+
+				//mouse up on the destination element
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+				destEle.dispatchEvent(mouseUpEvt);		
+
+
+			}, 'div.gridxRow[rowid="5"] td[colid="Genre"]', 'div.gridxRow[rowid="8"] td[colid="Genre"]');
+		});
+
+
+		this.then(function checkReult(){
+
+			this.capture(screenshotFolder+'afterCtrlSwipe.png');
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus, '3\n5\n6\n7\n8', '32--Now the first clicked row#3 and ctrl swiped 5-8 rows are all selected!');
+
+		});
+
+		this.then(function tearDown(){
+
+			//deselect all after test
+			this.click(x('//table[@class="testboard"]//button[text()="Deselect All"]'));
+		})
+	});
+
+
+	casper.then(function multiSelectbyShiftSwipe(){
+		//click the row#3 firstly
+		this.click('div.gridxRow[rowid="3"] td[colid="Genre"]');
+
+		this.then(function(){
+			this.evaluate(function ctrlClikRow(startSelector, destSelector){
+				var startEle = document.querySelector(startSelector), destEle = document.querySelector(destSelector);
+
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseMoveEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				//mouse down on the start element
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, true, false, 0, null);
+				startEle.dispatchEvent(mouseDownEvt);
+
+				//mouseover to the destination element
+				mouseMoveEvt.initMouseEvent('mouseover', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+				destEle.dispatchEvent(mouseMoveEvt);
+
+				//mouse up on the destination element
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 1, 0, 0, 0, 0, false, false, false, true, 0, null);
+				destEle.dispatchEvent(mouseUpEvt);		
+
+
+			}, 'div.gridxRow[rowid="5"] td[colid="Genre"]', 'div.gridxRow[rowid="8"] td[colid="Genre"]');
+		});
+
+
+		this.then(function checkReult(){
+
+			this.capture(screenshotFolder+'afterShiftSwipe.png');
+
+			var rowStatus = this.evaluate(function(){
+				return document.getElementById('rowStatus').value;
+			});
+
+			test.assertEquals(rowStatus, '3\n4\n5\n6\n7\n8', '33--Now from the first clicked row#3 to row#8 are all selected!');
+
+		});
+
+	});
 	//for cell selection part:
 	//1.Click on cell 2,Genre(Jazz)
 	//2.Hold down SHIFT and click on cell 3, Artist(Emerson), now the selected id are ok: [2, Genre],[3,Genre],[2,Artist],[3,Artist]

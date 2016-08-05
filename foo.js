@@ -1,10 +1,12 @@
 
 var cases = require('./common').cases;
 var config = require('./common').config;
+config.verbose = true;
 var casper = require('casper').create(config);
 var utils = require('utils');
 var x = require('casper').selectXPath;
 //var mouse = require('mouse').create(casper);
+
 
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -55,31 +57,76 @@ casper.then(function setup(){
 	});
 });
 
+casper.then(function shiftClick(){
+	this.click('div.gridxRowHeaderRow[rowid="2"] td');
+	this.then(function(){
+		this.evaluate(function(selector){
+			var ele = document.querySelector(selector), spacePress = document.createEvent("KeyboardEvent");
+			spacePress.initKeyboardEvent("keypress", // typeAr                                                       
+	                   true,             // canBubbleArg,                                                        
+	                   true,             // cancelableArg,                                                       
+	                   null,             // viewArg,  Specifies UIEvent.view. This value may be null.     
+	                   false,            //ctrlKeyArg,                                                               
+	                   false,            // altKeyArg,                                                        
+	                   true,            // shiftKeyArg,                                                      
+	                   false,            // metaKeyArg,                                                       
+	                    40,               // keyCodeArg,                                                      
+	         40);              // charCodeArg);
+			ele.dispatchEvent(spacePress);
+		}, '#grid');
+	});
 
-casper.then(function tabKey(){
+	//this.sendKeys('div.gridxRowHeaderRow[rowid="2"]', '\uE00D');
 
-/*	var focusedEle; 
-	
-	
-	do{
-
-			this.page.sendEvent('keypress', this.page.event.key.Tab);
-			
-			focusedEle = this.evaluate(function getfocused(){
-				return document.activeElement.className;
-
-			});
-			this.echo(focusedEle,'ERROR');
-		
-	}while (focusedEle.indexOf('gridxRowHeaderCell') == -1);*/
-
-
-
-	
-
-
-	
+	this.capture('aaaa.png');
 });
+
+
+casper.then(function openTriggerOnCell(){
+
+	this.evaluate(function(){
+		grid.select.row.triggerOnCell = true;
+	});
+
+	this.then(function singleSelect(){
+		this.click('div.gridxRow[rowid="3"] td[colid="Genre"]');
+	})
+
+});
+
+ //holding CTRL, swipe multiple rows
+casper.then(function multiSelectbyCtrlSwipe(){
+		this.evaluate(function ctrlClikRow(startSelector, destSelector){
+			var startEle = document.querySelector(startSelector), destEle = document.querySelector(destSelector);
+
+			// create event in old ugly way
+			var mouseDownEvt = document.createEvent('MouseEvents'), mouseMoveEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+			//mouse down on the start element
+			mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+			startEle.dispatchEvent(mouseDownEvt);
+
+			//mouseover to the destination element
+			mouseMoveEvt.initMouseEvent('mouseover', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			destEle.dispatchEvent(mouseMoveEvt);
+
+			//mouse up on the destination element
+			mouseUpEvt.initMouseEvent("mouseup", true, true, window, 1, 0, 0, 0, 0, true, false, false, false, 0, null);
+			destEle.dispatchEvent(mouseUpEvt);		
+
+
+		}, 'div.gridxRow[rowid="5"] td[colid="Genre"]', 'div.gridxRow[rowid="8"] td[colid="Genre"]');
+
+		this.then(function checkReult(){
+			this.capture('afterCtrlSwipe.png');
+		})
+});
+
+
+casper.then(function(){
+	this.bypass(6);
+});
+
 
 casper.then(function spaceKey(){
 
@@ -152,43 +199,38 @@ casper.then(function multiSelectByKeyboard(){
 
 	});
 
-casper.then(function openTriggerOnCell(){
 
-	this.evaluate(function(){
-		grid.select.row.triggerOnCell = true;
-	})
 
-});
+
+
 
 casper.then(function singleSelectOnCell(){
 	this.click('div.gridxRow[rowid="5"] td[colid="Genre"]');
 	this.capture('afterclickCell.png');
 });
 
-	casper.then(function multiSelectOnCell(){
+casper.then(function multiSelectOnCell(){
 
-		//swipe select 5-8 row
-		this.mouse.down('div.gridxRow[rowid="5"] td[colid="Genre"]');
-		this.mouse.move('div.gridxRow[rowid="8"] td[colid="Genre"]');
-		this.mouse.up('div.gridxRow[rowid="8"] td[colid="Genre"]');
+	//swipe select 5-8 row
+	this.mouse.down('div.gridxRow[rowid="5"] td[colid="Genre"]');
+	this.mouse.move('div.gridxRow[rowid="8"] td[colid="Genre"]');
+	this.mouse.up('div.gridxRow[rowid="8"] td[colid="Genre"]');
 
-		this.then(function checkReult(){
-			
-			this.capture('afterSwipeOnCell.png');
+	this.then(function checkReult(){
+		
+		this.capture('afterSwipeOnCell.png');
 
-			var rowStatus = this.evaluate(function(){
-				return document.getElementById('rowStatus').value;
-			});
+		var rowStatus = this.evaluate(function(){
+			return document.getElementById('rowStatus').value;
+		});
 
-			this.echo(rowStatus, 'INFO');
-			//test.assertEquals(rowStatus, '5\n6\n7\n8', '27--The row#5-8 should be selected by swiping the cell!');
-		})
+		this.echo(rowStatus, 'INFO');
+		//test.assertEquals(rowStatus, '5\n6\n7\n8', '27--The row#5-8 should be selected by swiping the cell!');
+	})
 
-	});
-
-casper.then(function(){
-	this.bypass(2);
 });
+
+
 
 casper.then(function testXPath(){
 	
