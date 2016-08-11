@@ -46,16 +46,20 @@ casper.test.begin('SingleSort test case', 2, function suite1(test){
 	
 	casper.then(function beforeStart(){
 		//verify the original sorting order is descending by Genre
-		var tempArr = [];
+		var originArr = [], tempArr;
 		var cellsInfo = this.getElementsInfo('#grid td[colid="Genre"][role="gridcell"]');
 		Array.prototype.forEach.call(cellsInfo, function(element, index) {
-			tempArr.push(element.text);
+			originArr.push(element.text);
 		});
-
+		
+		tempArr = originArr.concat();
 		this.then(function checkResult(){
+			
+			// sort temparray and revers, then tempArr should equals to originArr
+			tempArr = tempArr.sort().reverse();
+			
 
-			//the sorted array (by ) equals reversed array
-			test.assert(tempArr.sort() === tempArr.reverse(), '01--The ascendingly sorted column string equals the reversed one!');
+			test.assert(originArr.toString() === tempArr.toString(), '01--The data in Genre column are sorted descendingly (equals the sorted then reversed one)!');
 
 		})
 		
@@ -64,28 +68,36 @@ casper.test.begin('SingleSort test case', 2, function suite1(test){
 	//click the column header
 	casper.then(function sortByColumnHeader(){
 		
-		this.click('#grid-Year');
+		var originArr = [], tempArr;
 
-		//Now sort by Year column
-		var tempArr = [], finalArr;
-		var cellsInfo = this.getElementsInfo('#grid td[colid="Genre"][role="gridcell"]');
-		Array.prototype.forEach.call(cellsInfo, function(element, index) {
-			tempArr.push(element.text);
+		//scroll to right body
+		this.evaluate(function(){
+			grid.hScroller.scroll(600);
 		});
-
-		this.then(function sort(){
-			finalArr = tempArr.sort();
+		//Now sort by Name column ascendingly
+		this.then(function clickHeader(){
+			this.click('#grid-Name');	
 		});
+		
 
 		this.then(function checkResult(){
+			var cellsInfo = this.getElementsInfo('#grid td[colid="Name"][role="gridcell"]');
+			Array.prototype.forEach.call(cellsInfo, function(element, index) {
+				originArr.push(element.text);
+			});
 
+			var tempArr = originArr.concat();
 			
-			//the ascendingly sorted column string equals itself
+			utils.dump(originArr);
+			//sorted tempArr should equals to itself
+			tempArr = tempArr.sort();
 			utils.dump(tempArr);
-			utils.dump(finalArr);
-			test.assert(tempArr === finalArr, '02--The ascendingly sorted column strings equals itself casue its already ascendingly sorted! ');
 
-		})
+			test.assert(originArr.toString() === tempArr.toString(), '02--The data of Name column is sorted ascendingly!');
+		});
+		
+		
+
 	})
 
 	casper.run(function(){
