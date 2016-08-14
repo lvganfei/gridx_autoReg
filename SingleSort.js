@@ -88,16 +88,66 @@ casper.test.begin('SingleSort test case', 2, function suite1(test){
 
 			var tempArr = originArr.concat();
 			
-			utils.dump(originArr);
+			//utils.dump(originArr);
 			//sorted tempArr should equals to itself
 			tempArr = tempArr.sort();
-			utils.dump(tempArr);
+			//utils.dump(tempArr);
 
 			test.assert(originArr.toString() === tempArr.toString(), '02--The data of Name column is sorted ascendingly!');
 		});
 		
 		
 
+	});
+
+	//click the "Summary Genre and Year" column in the second grid
+	casper.then(function sepecialData(){
+
+		//scroll to right
+		this.evaluate(function(){
+			grid1.hScroller.scroll(600);
+		});
+
+		this.then(function sortAction(){
+			this.click('#grid1-Summary');
+		});
+
+		this.then(function checkResult(){
+			
+			var originArr = [], tempArr, cellsInfo = this.getElementsInfo('#grid1 td[colid="Summary"][role="gridcell"]');
+
+			Array.prototype.forEach.call(cellsInfo, function(element) {
+				originArr.push(element.text);
+			});
+
+			tempArr = originArr.concat();
+			utils.dump(tempArr);
+			tempArr.sort();
+			utils.dump(tempArr);
+
+			test.assertEquals(tempArr, originArr, '03--The summary column is now sorted (the sorted data equals itself)!');
+
+		})
+	});
+
+	//Nested sort test case on the third grid
+	casper.then(function beforeNestedSort(){
+		var originArr1 = [], tempArr1 = [], originArr2 = [], tempArr2 = [];
+		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
+		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
+
+
+
+		Array.prototype.forEach.call(cellsInfo1, function(element){
+			originArr1.push(element.text);
+		});
+
+		Array.prototype.forEach.call(cellsInfo2, function(element){
+			originArr2.push(element.text);
+		});
+
+		utils.dump(originArr1);
+		utils.dump(originArr2);
 	})
 
 	casper.run(function(){
