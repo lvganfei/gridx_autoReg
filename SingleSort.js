@@ -3,6 +3,7 @@ var config = require('./common').config;
 var utils = require('utils');
 var x = require('casper').selectXPath;
 var screenshotFolder = 'screenshot/SingleSort/';
+var fs = require('fs');
 
 //edit the capser object properties in test instance
 casper.options.verbose = config.verbose;
@@ -29,7 +30,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('SingleSort test case', 2, function suite1(test){
+casper.test.begin('SingleSort test case', 3, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SingleSort, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -151,6 +152,8 @@ casper.test.begin('SingleSort test case', 2, function suite1(test){
 	})
 
 	casper.run(function(){
-		test.done();
+		test.done(function renderResult(){
+			this.test.renderResults(true, 0 , 'SingleSort.xml');
+		});
 	});
 });
