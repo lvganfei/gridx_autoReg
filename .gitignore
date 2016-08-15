@@ -1,3 +1,5 @@
 foo*
 *.png
+*.xml
 screenshot/
+reports/
