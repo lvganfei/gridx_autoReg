@@ -3,7 +3,6 @@ var config = require('./common').config;
 var utils = require('utils');
 var x = require('casper').selectXPath;
 var screenshotFolder = 'screenshot/SingleSort/';
-var fs = require('fs');
 
 //edit the capser object properties in test instance
 casper.options.verbose = config.verbose;
@@ -40,6 +39,7 @@ casper.test.begin('SingleSort test case', 3, function suite1(test){
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
+			this.exit();
 		}, 10000);
 
 	});

@@ -1,5 +1,5 @@
 var caseToPage = {
-	'testPagePrefix':'http://localhost/workspace/dojo1.10.4/gridx/tests/',
+	'testPagePrefix':'http://idx.ibm.com/dojo_1.10.5/gridx/tests/',
 	'SimplestGrid':'test_grid.html',
 	'ColumnResizer':'test_grid_columnResizer.html',
 	'SingleSort':'test_grid_sort.html',
@@ -43,7 +43,7 @@ var caseToPage = {
 };
 
 var config = {
-	verbose: true, 
+	verbose: false, 
 	logLevel:'debug',
 	viewportSize: {width:1280, height:800}
 	/*onError: function(msg, arr){

@@ -38,6 +38,7 @@ casper.gridLoadCheck = function(){
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
+			this.exit();
 		}, 10000);	
 
 };

@@ -38,6 +38,7 @@ casper.test.begin('dnd row test case', 14, function suite1(test){
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
+			this.exit();
 		}, 10000);
 
 	});

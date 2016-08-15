@@ -42,6 +42,7 @@ casper.test.begin('Select Row test case', 9, function suite1(test){
 		}, function timeout(){
 			this.echo('cant get element!!!!');
 			this.capture('fail.png');
+			this.exit();
 		}, 10000);
 
 	});
