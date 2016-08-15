@@ -1,7 +1,7 @@
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
-var screenshotFolder = 'screenshot/DndROw/';
+var screenshotFolder = 'screenshot/DndRow/';
 
 //edit the capser object properties in test instance
 casper.options.verbose = config.verbose;
