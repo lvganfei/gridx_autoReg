@@ -28,7 +28,13 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('dnd row test case', 3, function suite1(test){
+casper.repeatKey = function(times, key){
+	for(var i=0; i < times; i++){
+		this.page.sendEvent('keypress', this.page.event.key[key]);
+	}
+};
+
+casper.test.begin('dnd row test case', 4, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -54,32 +60,44 @@ casper.test.begin('dnd row test case', 3, function suite1(test){
 				return grid.select.row.getSelected();
 			});
 
-			test.assertEquals(selected, ["2"], '01--The selected row is row#2!');
+			test.assertEquals(selected, ["2"], '01--The selected row should be row#2!');
 			test.assertMatch(rowClass, /gridxRowSelected/g, '02--The row class should has selected rule!');
 		})
 	});
 
 	
 	//Use the up/down arrow twice to move the cell focus up/down 2 rows
-	casper.then(function arrowKey(){
-
-		this.page.sendEvent('keypress', this.page.event.key.Down);
-		this.page.sendEvent('keypress', this.page.event.key.Down);
-
-	});
-
 	//use the space key tring to select te row where the cell focus is in. This row not get selected sometime
 	casper.then(function spaceKey(){
+		var repeatTime, destPos;
 
-		this.page.sendEvent('keypress', this.page.event.key.Space);
+		//repeat random time less than 8
+		repeatTime = Math.ceil(Math.random()*8);
 
+		//the destination position is repeat time plus 2
+		destPos = repeatTime + 2;
+
+		//repeat arrow down key repeatTime times
+		this.repeatKey(repeatTime, 'Down');
+
+		//press Space key
+		this.then(function spaceKey(){
+
+			this.page.sendEvent('keypress', this.page.event.key.Space);
+
+		});
+		
+		
 		this.then(function checkResult(){
-			var rowClass = this.getElementAttribute('div.gridxRowHeaderRow[rowid="2"]', 'class');
+
+			var rowClass = this.getElementAttribute('div.gridxRowHeaderRow[rowid="'+destPos+'"]', 'class');
 			var selected = this.evaluate(function(){
 				return grid.select.row.getSelected();
 			});
 
-			test.assertEquals(selected, ["4"], '03--Now the selected row is row#2!');
+			this.echo(repeatTime);
+			test.assertEquals(selected, [destPos.toString()], '03--Now the selected row should be row#'+destPos+'!');
+			test.assertMatch(rowClass, /gridxRowSelected/g, '04--The row#'+destPos+' should has selected style!');
 		})
 	})
 
