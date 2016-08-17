@@ -28,7 +28,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('dnd row test case', 14, function suite1(test){
+casper.test.begin('dnd row test case', 3, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -43,13 +43,45 @@ casper.test.begin('dnd row test case', 14, function suite1(test){
 
 	});
 
-	//test case start here
+	//defect#12789 for dnd_rearrange.html, triggerOnCell is true
+	casper.then(function clickOneRow(){
+		//Use the mouse click to select row#2
+		this.click('div.gridxRow[rowid="2"] td[colid="Genre"]');
 
+		this.then(function checkResult(){
+			var rowClass = this.getElementAttribute('div.gridxRowHeaderRow[rowid="2"]', 'class');
+			var selected = this.evaluate(function(){
+				return grid.select.row.getSelected();
+			});
 
-//defect#12789 for dnd_rearrange.html, triggerOnCell is true
-	//Use the mouse click to select a row
-	//Use the up/down arrow to move the cell focus up/down few rows
+			test.assertEquals(selected, ["2"], '01--The selected row is row#2!');
+			test.assertMatch(rowClass, /gridxRowSelected/g, '02--The row class should has selected rule!');
+		})
+	});
+
+	
+	//Use the up/down arrow twice to move the cell focus up/down 2 rows
+	casper.then(function arrowKey(){
+
+		this.page.sendEvent('keypress', this.page.event.key.Down);
+		this.page.sendEvent('keypress', this.page.event.key.Down);
+
+	});
+
 	//use the space key tring to select te row where the cell focus is in. This row not get selected sometime
+	casper.then(function spaceKey(){
+
+		this.page.sendEvent('keypress', this.page.event.key.Space);
+
+		this.then(function checkResult(){
+			var rowClass = this.getElementAttribute('div.gridxRowHeaderRow[rowid="2"]', 'class');
+			var selected = this.evaluate(function(){
+				return grid.select.row.getSelected();
+			});
+
+			test.assertEquals(selected, ["4"], '03--Now the selected row is row#2!');
+		})
+	})
 
 	casper.run(function(){
 		test.done();
