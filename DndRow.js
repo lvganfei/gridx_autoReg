@@ -28,13 +28,28 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
+//grid reload function
+casper.gridLoadCheck = function(){
+		this.waitFor(function check(){
+			return this.exists('td.gridxCell ');
+		}, function then(){
+			this.echo('page loaded!');
+			this.capture(screenshotFolder+'originGrid.png');
+		}, function timeout(){
+			this.echo('cant get element!!!!');
+			this.capture('fail.png');
+			this.exit();
+		}, 10000);	
+
+};
+
 casper.repeatKey = function(times, key){
 	for(var i=0; i < times; i++){
 		this.page.sendEvent('keypress', this.page.event.key[key]);
 	}
 };
 
-casper.test.begin('dnd row test case', 4, function suite1(test){
+casper.test.begin('dnd row test case', 6, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -71,8 +86,8 @@ casper.test.begin('dnd row test case', 4, function suite1(test){
 	casper.then(function spaceKey(){
 		var repeatTime, destPos;
 
-		//repeat random time less than 8
-		repeatTime = Math.ceil(Math.random()*8);
+		//repeat random time less than 7
+		repeatTime = Math.ceil(Math.random()*7);
 
 		//the destination position is repeat time plus 2
 		destPos = repeatTime + 2;
@@ -96,10 +111,60 @@ casper.test.begin('dnd row test case', 4, function suite1(test){
 			});
 
 			this.echo(repeatTime);
+			this.capture(screenshotFolder+'afterSpaceKey.png');
 			test.assertEquals(selected, [destPos.toString()], '03--Now the selected row should be row#'+destPos+'!');
 			test.assertMatch(rowClass, /gridxRowSelected/g, '04--The row#'+destPos+' should has selected style!');
+		});
+
+		this.then(function tearDown(){
+			this.reload(this.gridLoadCheck);
 		})
-	})
+	});
+
+	//single row rearrange
+	casper.then(function singleDnd(){
+
+		//specify which destination row's bottom border to dnd 
+		var dragDestin = Math.ceil(Math.random()*8)+1;
+
+		//click the 1st row
+		this.then(function click(){
+			this.click('div.gridxRow[rowid="1"] td[colid="Genre"]');
+
+		});
+		
+		this.then(function dndRandom(){
+			var dragDestinPos = this.getElementBounds('div.gridxRow[rowid="'+dragDestin+'"] td[colid="Genre"]');
+			
+			//wait 1 second then drag
+			this.wait(1000, function(){
+
+				this.mouseEvent('mouseover', 'div.gridxRow[rowid="1"] td[colid="Genre"]', '50%', '50%');
+				this.mouse.down('div.gridxRow[rowid="1"] td[colid="Genre"]');
+
+				//move and drop to destination row's bottom
+				this.mouse.move(dragDestinPos.left, dragDestinPos.top+dragDestinPos.height);
+				this.mouse.up(dragDestinPos.left, dragDestinPos.top+dragDestinPos.height);
+
+			});	
+		});
+
+		this.then(function checkResult(){
+			var selectedRowid = this.getElementAttribute('div.gridxRow.gridxRowSelected', 'rowid');
+			var newOrder = this.getElementInfo('div.gridxRow[rowid="1"] td[colid="order"]').text;
+			
+			this.echo('row order: '+newOrder, 'INFO');
+
+			this.wait(1000, function capture(){
+				this.echo('dragDestin row is: '+dragDestin, 'INFO');
+				this.capture(screenshotFolder+'afterSingleDnd.png');
+			});
+			
+			test.assertEquals(selectedRowid, '1', '05--The selected row should still be 1!');
+			test.assertEquals(Math.floor(newOrder), dragDestin+1, '06--Now the new position of dragged row should be below the destination row!');
+
+		})
+	});
 
 	casper.run(function(){
 		test.done();
