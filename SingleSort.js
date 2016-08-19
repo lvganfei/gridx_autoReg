@@ -29,7 +29,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('SingleSort test case', 3, function suite1(test){
+casper.test.begin('SingleSort test case', 4, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SingleSort, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -94,7 +94,8 @@ casper.test.begin('SingleSort test case', 3, function suite1(test){
 			tempArr = tempArr.sort();
 			//utils.dump(tempArr);
 
-			test.assert(originArr.toString() === tempArr.toString(), '02--The data of Name column is sorted ascendingly!');
+			//use assertEquals
+			test.assertEquals(originArr, tempArr, '02--The data of Name column is sorted ascendingly!');
 		});
 		
 		
@@ -131,6 +132,38 @@ casper.test.begin('SingleSort test case', 3, function suite1(test){
 		})
 	});
 
+	//a11y keyboard operation on the column header to sort
+	casper.then(function singleSortByKeyboard(){
+		//press left arrow key to focus on the last played column
+		this.page.sendEvent('keypress', this.page.event.key.Left);
+
+		this.then(function sortByKeyboard(){
+			//press space key or enter key(they have different behavior), now the last played column should sorted descendingly
+			this.page.sendEvent('keypress', this.page.event.key.Space);
+			//this.page.sendEvent('keypress', this.page.event.key.Enter);
+		});
+
+		this.then(function checkResult(){
+
+			this.capture(screenshotFolder+'afterPressSpace.png');
+
+			var originArr = [], tempArr, cellsInfo = this.getElementsInfo('#grid1 td[colid="LastPlayed"][role="gridcell"]');
+
+			Array.prototype.forEach.call(cellsInfo, function(element) {
+				originArr.push(element.text.trim());
+			});
+
+			tempArr = originArr.concat();
+			utils.dump(originArr);
+			tempArr.sort();
+			utils.dump(tempArr);
+
+			test.assertEquals(tempArr, originArr, '04--The last played column is now sorted ascendingly(the sorted data equals its reversed)!');
+
+		})
+
+	});
+
 	//Nested sort test case on the third grid
 	casper.then(function beforeNestedSort(){
 		var originArr1 = [], tempArr1 = [], originArr2 = [], tempArr2 = [];
@@ -147,8 +180,8 @@ casper.test.begin('SingleSort test case', 3, function suite1(test){
 			originArr2.push(element.text);
 		});
 
-		utils.dump(originArr1);
-		utils.dump(originArr2);
+		/*utils.dump(originArr1);
+		utils.dump(originArr2);*/
 	})
 
 	casper.run(function(){
