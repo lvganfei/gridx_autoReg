@@ -150,10 +150,26 @@ casper.test.begin('dnd row test case', 6, function suite1(test){
 		});
 
 		this.then(function checkResult(){
+
 			var selectedRowid = this.getElementAttribute('div.gridxRow.gridxRowSelected', 'rowid');
-			var newOrder = this.getElementInfo('div.gridxRow[rowid="1"] td[colid="order"]').text;
 			
-			this.echo('row order: '+newOrder, 'INFO');
+			//Now after dnd row#1 to destination row, the row#1's new dom order will replace the destination row 
+			var draggedRowIndex = this.evaluate(function getDomIndex(){
+				var domOrder, nodeList = document.querySelectorAll('div.gridxRow[visualindex]'); 
+
+				//get dom position of selected and dragged row 
+				Array.prototype.forEach.call(nodeList, function(ele,index){
+				
+					if ((ele.className.indexOf('gridxRowSelected') > -1) && ele.getAttribute('rowid') == '1'){
+						domOrder = index;
+					}
+				
+				});
+
+				return domOrder;
+			});
+
+			this.echo('draggedRowIndex is: '+draggedRowIndex, 'INFO');
 
 			this.wait(1000, function capture(){
 				this.echo('dragDestin row is: '+dragDestin, 'INFO');
@@ -161,7 +177,9 @@ casper.test.begin('dnd row test case', 6, function suite1(test){
 			});
 			
 			test.assertEquals(selectedRowid, '1', '05--The selected row should still be 1!');
-			test.assertEquals(Math.floor(newOrder), dragDestin+1, '06--Now the new position of dragged row should be below the destination row!');
+
+			//the row being dragged should replace (equal) destination row in dom sequence
+			test.assertEquals(draggedRowIndex, dragDestin, '06--Now the new position of dragged row should replace the destination row!');
 
 		})
 	});
