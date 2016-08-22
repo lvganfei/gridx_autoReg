@@ -29,7 +29,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('SingleSort test case', 4, function suite1(test){
+casper.test.begin('SingleSort test case', 5, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.SingleSort, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -158,31 +158,39 @@ casper.test.begin('SingleSort test case', 4, function suite1(test){
 			tempArr.sort();
 			utils.dump(tempArr);
 
-			test.assertEquals(tempArr, originArr, '04--The last played column is now sorted ascendingly(the sorted data equals its reversed)!');
+			test.assertEquals(tempArr, originArr, '04--The last played column is now sorted ascendingly(the sorted data equals itself)!');
 
 		})
 
 	});
 
-	//Nested sort test case on the third grid
-	casper.then(function beforeNestedSort(){
-		var originArr1 = [], tempArr1 = [], originArr2 = [], tempArr2 = [];
-		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
-		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
+	//press space key again to sort
+	casper.then(function singleSortByKeyboardAgain(){
 
+		//press the space key
+		this.page.sendEvent('keypress', this.page.event.key.Space);
 
+		this.then(function checkResult(){
 
-		Array.prototype.forEach.call(cellsInfo1, function(element){
-			originArr1.push(element.text);
-		});
+			this.capture(screenshotFolder+'afterPressSpaceAgain.png');
 
-		Array.prototype.forEach.call(cellsInfo2, function(element){
-			originArr2.push(element.text);
-		});
+			var originArr = [], tempArr, cellsInfo = this.getElementsInfo('#grid1 td[colid="LastPlayed"][role="gridcell"]');
 
-		/*utils.dump(originArr1);
-		utils.dump(originArr2);*/
+			Array.prototype.forEach.call(cellsInfo, function(element) {
+				originArr.push(element.text.trim());
+			});
+
+			tempArr = originArr.concat();
+			utils.dump(originArr);
+			tempArr.sort().reverse();
+			utils.dump(tempArr);
+
+			test.assertEquals(tempArr, originArr, '05--The last played column is now sorted descendingly(the sorted data equals its reversed)!');
+
+		})
 	})
+
+
 
 	casper.run(function(){
 		test.done(function renderResult(){
