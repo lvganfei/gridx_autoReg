@@ -188,7 +188,7 @@ casper.test.begin('SingleSort test case', 5, function suite1(test){
 			test.assertEquals(tempArr, originArr, '05--The last played column is now sorted descendingly(the sorted data equals its reversed)!');
 
 		})
-	})
+	});
 
 
 

@@ -49,7 +49,8 @@ casper.repeatKey = function(times, key){
 	}
 };
 
-casper.test.begin('dnd row test case', 6, function suite1(test){
+casper.test.begin('dnd row test case', 7, function suite1(test){
+	
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -155,7 +156,7 @@ casper.test.begin('dnd row test case', 6, function suite1(test){
 			
 			//Now after dnd row#1 to destination row, the row#1's new dom order will replace the destination row 
 			var draggedRowIndex = this.evaluate(function getDomIndex(){
-				var domOrder, nodeList = document.querySelectorAll('div.gridxRow[visualindex]'); 
+				var domOrder, nodeList = document.querySelectorAll('div.gridxRow'); 
 
 				//get dom position of selected and dragged row 
 				Array.prototype.forEach.call(nodeList, function(ele,index){
@@ -183,6 +184,74 @@ casper.test.begin('dnd row test case', 6, function suite1(test){
 
 		})
 	});
+
+	//multi row rearrange
+	casper.then(function multiRowDndByMouse(){
+		//specify a random count to dnd over
+		var dragDestin = Math.ceil(Math.random()*7)+2;
+		this.reload(this.gridLoadCheck);
+		
+		this.then(function multiSelect(){
+
+			//select row 1-3 by mouse swipe
+			this.mouse.down('div.gridxRow[rowid="1"] td[colid="Genre"]');
+			this.mouse.move('div.gridxRow[rowid="3"] td[colid="Genre"]');
+			this.mouse.up('div.gridxRow[rowid="3"] td[colid="Genre"]');
+		});
+
+		this.then(function dndRandom(){
+			
+			//specify which destination row's bottom border to dnd 
+			
+			var dragDestinPos = this.getElementBounds('div.gridxRow[rowid="'+dragDestin+'"] td[colid="Genre"]');
+			
+			//wait 1 second then drag
+			this.wait(1000, function(){
+
+				this.mouseEvent('mouseover', 'div.gridxRow[rowid="1"] td[colid="Genre"]', '50%', '50%');
+				this.mouse.down('div.gridxRow[rowid="1"] td[colid="Genre"]');
+
+				//move and drop to destination row's bottom
+				this.mouse.move(dragDestinPos.left, dragDestinPos.top+dragDestinPos.height);
+				this.mouse.up(dragDestinPos.left, dragDestinPos.top+dragDestinPos.height);
+
+			});	
+		});
+
+		this.then(function checkResult(){
+
+			//get the selected rows' id
+			var selectedRowid = this.getElementsAttribute('div.gridxRow.gridxRowSelected', 'rowid');
+
+			//Now after dnd rows to destination row, the dragged rows new dom order will replace the destination row 
+			var draggedRowIndex = this.evaluate(function getDomIndex(){
+				var domOrder = [], nodeList = document.querySelectorAll('div.gridxRow'); 
+
+				//get dom position of selected and dragged row 
+				Array.prototype.forEach.call(nodeList, function(ele,index){
+				
+					if ((ele.className.indexOf('gridxRowSelected') > -1) &&  ["1","2","3"].indexOf(ele.getAttribute('rowid'))>-1){
+						domOrder.push(index);
+					}
+				
+				});
+
+				return domOrder;
+			});
+
+			this.wait(1000, function afterWait(){
+				
+				this.echo('multi dragDestin row is: '+dragDestin, 'INFO');
+				utils.dump(draggedRowIndex);
+				this.capture(screenshotFolder+'afterMultiDnd.png');	
+
+				test.assertEquals(selectedRowid, ["1","2","3"], '07--The selected rows should still be 1-3!');	
+			});
+			
+
+			
+		})
+	})
 
 	casper.run(function(){
 		test.done();
