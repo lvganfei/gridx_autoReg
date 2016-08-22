@@ -49,7 +49,7 @@ casper.repeatKey = function(times, key){
 	}
 };
 
-casper.test.begin('dnd row test case', 7, function suite1(test){
+casper.test.begin('dnd row test case', 8, function suite1(test){
 	
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
@@ -111,7 +111,7 @@ casper.test.begin('dnd row test case', 7, function suite1(test){
 				return grid.select.row.getSelected();
 			});
 
-			this.echo(repeatTime);
+			this.echo('repeat Down key '+repeatTime+'times', 'INFO');
 			this.capture(screenshotFolder+'afterSpaceKey.png');
 			test.assertEquals(selected, [destPos.toString()], '03--Now the selected row should be row#'+destPos+'!');
 			test.assertMatch(rowClass, /gridxRowSelected/g, '04--The row#'+destPos+' should has selected style!');
@@ -152,6 +152,7 @@ casper.test.begin('dnd row test case', 7, function suite1(test){
 
 		this.then(function checkResult(){
 
+			//Get selected row id
 			var selectedRowid = this.getElementAttribute('div.gridxRow.gridxRowSelected', 'rowid');
 			
 			//Now after dnd row#1 to destination row, the row#1's new dom order will replace the destination row 
@@ -170,18 +171,20 @@ casper.test.begin('dnd row test case', 7, function suite1(test){
 				return domOrder;
 			});
 
-			this.echo('draggedRowIndex is: '+draggedRowIndex, 'INFO');
 
 			this.wait(1000, function capture(){
+				this.echo('draggedRowIndex is: '+draggedRowIndex, 'INFO');
 				this.echo('dragDestin row is: '+dragDestin, 'INFO');
 				this.capture(screenshotFolder+'afterSingleDnd.png');
+
+				test.assertEquals(selectedRowid, '1', '05--The selected row should still be 1!');
+
+				//the row being dragged should replace (equal) destination row in dom sequence
+				test.assertEquals(draggedRowIndex, dragDestin, '06--Now the new position of dragged row should replace the destination row!');
+
 			});
 			
-			test.assertEquals(selectedRowid, '1', '05--The selected row should still be 1!');
-
-			//the row being dragged should replace (equal) destination row in dom sequence
-			test.assertEquals(draggedRowIndex, dragDestin, '06--Now the new position of dragged row should replace the destination row!');
-
+			
 		})
 	});
 
@@ -241,14 +244,13 @@ casper.test.begin('dnd row test case', 7, function suite1(test){
 
 			this.wait(1000, function afterWait(){
 				
-				this.echo('multi dragDestin row is: '+dragDestin, 'INFO');
+				this.echo('multi drag Destination row is: '+dragDestin, 'INFO');
 				utils.dump(draggedRowIndex);
 				this.capture(screenshotFolder+'afterMultiDnd.png');	
 
-				test.assertEquals(selectedRowid, ["1","2","3"], '07--The selected rows should still be 1-3!');	
+				test.assertEquals(selectedRowid, ["1","2","3"], '07--The selected rows should still be 1-3!');
+				test.assertEquals(draggedRowIndex[draggedRowIndex.length-1], dragDestin, '08--The new dom position of last dragged row is the destination row');
 			});
-			
-
 			
 		})
 	})

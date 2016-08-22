@@ -139,8 +139,9 @@ casper.test.begin('SingleSort test case', 5, function suite1(test){
 
 		this.then(function sortByKeyboard(){
 			//press space key or enter key(they have different behavior), now the last played column should sorted descendingly
-			this.page.sendEvent('keypress', this.page.event.key.Space);
-			//this.page.sendEvent('keypress', this.page.event.key.Enter);
+			//press the space or enter key, space key doesn't work in windows
+			//this.page.sendEvent('keypress', this.page.event.key.Space);
+			this.page.sendEvent('keypress', this.page.event.key.Enter);
 		});
 
 		this.then(function checkResult(){
@@ -167,8 +168,9 @@ casper.test.begin('SingleSort test case', 5, function suite1(test){
 	//press space key again to sort
 	casper.then(function singleSortByKeyboardAgain(){
 
-		//press the space key
-		this.page.sendEvent('keypress', this.page.event.key.Space);
+		//press the space or enter key, a bug exist here: space key doesn't work in windows
+		//this.page.sendEvent('keypress', this.page.event.key.Space);
+		this.page.sendEvent('keypress', this.page.event.key.Enter);
 
 		this.then(function checkResult(){
 
