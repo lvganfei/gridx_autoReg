@@ -49,7 +49,7 @@ casper.repeatKey = function(times, key){
 	}
 };
 
-casper.test.begin('dnd row test case', 8, function suite1(test){
+casper.test.begin('dnd row within single grid test case', 8, function suite1(test){
 	
 	casper.start(cases.testPagePrefix+cases.DndRow, function pageLoadCheck(){
 		this.waitFor(function check(){
@@ -64,7 +64,7 @@ casper.test.begin('dnd row test case', 8, function suite1(test){
 		}, 10000);
 
 	});
-
+	
 	//defect#12789 for dnd_rearrange.html, triggerOnCell is true
 	casper.then(function clickOneRow(){
 		//Use the mouse click to select row#2
@@ -259,3 +259,63 @@ casper.test.begin('dnd row test case', 8, function suite1(test){
 		test.done();
 	});
 });
+
+//start the dnd between grids case
+casper.test.begin('dnd row between grids test case', 1, function suite2(test){
+	casper.start(cases.testPagePrefix+'test_grid_dndrow_betweengrids.html', function pageLoadCheck(){
+		this.waitFor(function check(){
+			return this.exists('td.gridxCell ');
+		}, function then(){
+			this.echo('page loaded!');
+			this.capture(screenshotFolder+'originGrid.png');
+		}, function timeout(){
+			this.echo('cant get element!!!!');
+			this.capture('fail.png');
+			this.exit();
+		}, 10000);
+
+	});
+
+	casper.then(function drag1to2(){
+
+		//click name cell in row#1
+		this.wait(500, function click(){
+
+			this.click('#grid1 div.gridxRow[rowid="1"] td[colid="Name"]');
+
+		});
+
+		this.then(function checkResult1(){
+			
+			var selectedRow = this.evaluate(function(){
+				return dijit.byId('grid1').select.row.getSelected();
+			});
+
+			this.capture(screenshotFolder+'afterClickRowOfGrid1.png');
+			test.assertEquals(selectedRow, ["1"], '08--The row#1 should be selected!');
+		});
+
+		this.then(function dragToGrid2(){
+
+			//hover on the selected row
+			this.mouseEvent('mouseover', '#grid1 div.gridxRow[rowid="1"] td[colid="Year"]');
+			//mouse down
+			this.mouse.down('#grid1 div.gridxRow[rowid="1"] td[colid="Year"]');
+			//mouse move
+			this.mouseEvent('mousemove', '#grid2 div.gridxBody', '50%', '50%');
+			//mouse up
+			this.capture(screenshotFolder+'debug.png');
+			this.mouseEvent('mouseup', '#grid2 div.gridxBody', '50%', '50%');
+		});
+
+		this.then(function checkResult2(){
+			this.capture(screenshotFolder+'afterDragToGrid2.png');
+		})
+
+	});
+
+	casper.run(function(){
+		test.done();
+	});
+
+})

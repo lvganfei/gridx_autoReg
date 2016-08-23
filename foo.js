@@ -5,6 +5,7 @@ config.verbose = true;
 var casper = require('casper').create(config);
 var utils = require('utils');
 var x = require('casper').selectXPath;
+var screenshotFolder = 'screenshot/foo/';
 //var mouse = require('mouse').create(casper);
 
 
@@ -17,7 +18,7 @@ casper.refreshGrid = function(eleId){
 
 var gridLoadCheck = function(){
 		this.waitFor(function check(){
-			return this.exists('div.gridxRowHeaderRow[rowid="0"] td');
+			return this.exists('div.gridxRow[rowid="0"]');
 		}, function then(){
 			this.echo('page loaded!');
 			this.capture('originGrid.png');
@@ -44,7 +45,7 @@ casper.on('remote.message', function(msg) {
     this.echo('remote message caught: ' + msg, 'INFO');
 });
 
-casper.start(cases.testPagePrefix+cases.ExtendedSelectRow, gridLoadCheck);
+casper.start(cases.testPagePrefix+'test_grid_dndrow_betweengrids.html', gridLoadCheck);
     
 casper.then(function setup(){
 	this.evaluate(function addEventListener(){
@@ -53,8 +54,70 @@ casper.then(function setup(){
 			console.log('target is: '+e.target.tagName+'.('+e.target.className+')');
 			console.log('active element is: '+document.activeElement.tagName+'.('+document.activeElement.className+')');
 		});
-		grid.onRowHeaderCellKeyDown= function(e){console.log(e.which||e.keyCode||e.key||e.charCode); console.log('now in grid rowheader: '+document.activeElement.tagName+'.('+document.activeElement.className+')')}
+		dijit.byId('grid1').onRowHeaderCellKeyDown= function(e){console.log(e.which||e.keyCode||e.key||e.charCode); console.log('now in grid rowheader: '+document.activeElement.tagName+'.('+document.activeElement.className+')')}
 	});
+});
+
+casper.then(function drag1to2(){
+
+	//click name cell in row#1
+	this.wait(500, function click(){
+
+		this.click('#grid1 div.gridxRow[rowid="1"] td[colid="Name"]');
+		this.capture(screenshotFolder+'afterClick.png');
+	});
+
+
+	this.then(function dragToGrid2(){
+
+	/*	this.then(function eval(){
+			this.evaluate(function ctrlClikRow(startSelector, destSelector){
+				var startEle = document.querySelector(startSelector), destEle = document.querySelector(destSelector);
+
+				// create event in old ugly way
+				var mouseDownEvt = document.createEvent('MouseEvents'), mouseMoveEvt = document.createEvent('MouseEvents'), mouseUpEvt = document.createEvent('MouseEvents');
+
+				//mouse down on the start element
+				mouseDownEvt.initMouseEvent("mousedown", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+				startEle.dispatchEvent(mouseDownEvt);
+
+				//mouseover to the destination element
+				mouseMoveEvt.initMouseEvent('mousemove', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+				destEle.dispatchEvent(mouseMoveEvt);
+
+				//mouse up on the destination element
+				mouseUpEvt.initMouseEvent("mouseup", true, true, window, 2, 0, 0, 0, 0, false, false, false, false, 0, null);
+				destEle.dispatchEvent(mouseUpEvt);		
+
+
+			}, '#grid1 div.gridxRow[rowid="1"] td[colid="Year"]', '#grid2 div.dojoDndTarget');
+		});*/
+		var targetPostion = this.getElementBounds('#grid2 div.dojoDndTarget');
+		utils.dump(targetPostion);
+		//hover on the selected row
+		//this.mouseEvent('mouseover', '#grid1 div.gridxRow[rowid="1"] td[colid="Year"]');
+		//mouse down
+		this.mouse.down('#grid1 div.gridxRow[rowid="1"]');
+		//this.mouse.move('#grid1 div.gridxRow[rowid="4"] td[colid="Name"]');
+		//mouse move
+		this.mouse.move(500, 400);
+		//this.mouse.move(targetPostion.left+targetPostion.width/2, targetPostion.top+targetPostion.height/2);
+		//mouse up
+		this.capture(screenshotFolder+'debug.png');
+		this.mouse.up(500, 400);
+		//this.mouse.up('#grid1 div.gridxRow[rowid="4"] td[colid="Name"]');
+		//this.mouse.up(targetPostion.left+targetPostion.width/2, targetPostion.top+targetPostion.height/2);
+	});
+
+	this.then(function checkResult2(){
+		this.capture(screenshotFolder+'afterDragToGrid2.png');
+	});
+
+});
+
+
+casper.then(function(){
+	this.bypass(9);
 });
 
 casper.then(function shiftClick(){
@@ -123,9 +186,7 @@ casper.then(function multiSelectbyCtrlSwipe(){
 });
 
 
-casper.then(function(){
-	this.bypass(6);
-});
+
 
 
 casper.then(function spaceKey(){
