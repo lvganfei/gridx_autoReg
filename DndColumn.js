@@ -44,32 +44,35 @@ casper.test.begin('Dnd', 2, function suite1(test){
 
 
 	casper.then(function DndColumn(){
-		var selectionStartX = this.getElementBounds('#grid-Genre').left, selectionStartY = this.getElementBounds('#grid-Genre').top;
-		this.capture(screenshotFolder+'before.png');
-		this.mouseEvent('mouseover', '#grid-Genre', '100%', '50%');
-		this.capture(screenshotFolder+'selectOver.png');
-		//Swept select from Genre column
-		this.mouse.down(selectionStartX+5, selectionStartY+10);
-		this.capture(screenshotFolder+'selectDown.png');
-		this.mouse.move(selectionStartX+200, selectionStartY+10);
-		this.capture(screenshotFolder+'selectMove.png');
-		this.mouse.up(selectionStartX+200, selectionStartY+10);
+		var selectionStartX = this.getElementBounds('#grid-id').left, selectionStartY = this.getElementBounds('#grid-id').top;
+	
+		this.mouseEvent('mouseover', '#grid-id', '100%', '50%');
+		
+		//Swept select from id to Order column
+		//this.mouse.down(selectionStartX+5, selectionStartY+10);
+		this.mouse.down('#grid-id');
+		
+		//this.mouse.move(selectionStartX+200, selectionStartY+10);
+		this.mouse.move('#grid-order');
+
+		//this.mouse.up(selectionStartX+200, selectionStartY+10);
+		this.mouse.up('#grid-order');
 		this.capture(screenshotFolder+'SelectFinish.png');
 		var selectedCol = this.evaluate(function getSelected(){
 			return grid.select.column.getSelected();
 		});
-		test.assertEquals(selectedCol, ["Genre", "Artist"], '01--The selected column should be Genre and Artist!');
+		test.assertEquals(selectedCol, ["id", "order"], '01--The selected column should be Genre and Artist!');
 		//Dnd 300px to right
 		var dndStartX = this.getElementBounds('td.gridxColumnSelected[role=gridcell]').left, dndStartY = this.getElementBounds('td.gridxColumnSelected[role=gridcell]').top;
 		this.mouseEvent('mouseover', 'td.gridxColumnSelected[role=gridcell]', '50%', '50%');
 		this.mouse.down('td.gridxColumnSelected[role=gridcell]');
 		this.capture(screenshotFolder+'dndDown.png');
-		this.mouse.move(dndStartX+300, dndStartY+10);
+		this.mouse.move(dndStartX+700, dndStartY+10);
 		this.capture(screenshotFolder+'dndMove.png');
-		this.mouse.up(dndStartX+300, dndStartY+10);
+		this.mouse.up(dndStartX+700, dndStartY+10);
 		this.capture(screenshotFolder+'last.png');
 
-		var colDropX = this.getElementBounds('#grid-Genre').left;
+		var colDropX = this.getElementBounds('#grid-id').left;
 		this.echo(selectionStartX+' and '+colDropX);
 		test.assertNotEquals(selectionStartX, colDropX, '02--The position after dnd is changed!');
 	});

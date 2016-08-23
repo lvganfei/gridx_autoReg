@@ -310,6 +310,7 @@ casper.test.begin('dnd row between grids test case', 1, function suite2(test){
 
 		this.then(function checkResult2(){
 			this.capture(screenshotFolder+'afterDragToGrid2.png');
+			test.comment('There is casperjs bug here, dnd between grids doesnt work!');
 		})
 
 	});

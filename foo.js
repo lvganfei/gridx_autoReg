@@ -21,10 +21,10 @@ var gridLoadCheck = function(){
 			return this.exists('div.gridxRow[rowid="0"]');
 		}, function then(){
 			this.echo('page loaded!');
-			this.capture('originGrid.png');
+			this.capture(screenshotFolder+'originGrid.png');
 		}, function timeout(){
 			this.echo('cant get element!!!!');
-			this.capture('fail.png');
+			this.capture(screenshotFolder+'fail.png');
 		}, 10000);	
 
 };
@@ -63,7 +63,7 @@ casper.then(function drag1to2(){
 	//click name cell in row#1
 	this.wait(500, function click(){
 
-		this.click('#grid1 div.gridxRow[rowid="1"] td[colid="Name"]');
+		this.click('#grid1 div.gridxRow[rowid="0"] td[colid="Name"]');
 		this.capture(screenshotFolder+'afterClick.png');
 	});
 
@@ -97,14 +97,15 @@ casper.then(function drag1to2(){
 		//hover on the selected row
 		//this.mouseEvent('mouseover', '#grid1 div.gridxRow[rowid="1"] td[colid="Year"]');
 		//mouse down
-		this.mouse.down('#grid1 div.gridxRow[rowid="1"]');
+		this.mouse.down('#grid1 div.gridxRow[rowid="0"]');
 		//this.mouse.move('#grid1 div.gridxRow[rowid="4"] td[colid="Name"]');
 		//mouse move
-		this.mouse.move(500, 400);
+		this.mouse.move(857, 350);
 		//this.mouse.move(targetPostion.left+targetPostion.width/2, targetPostion.top+targetPostion.height/2);
 		//mouse up
 		this.capture(screenshotFolder+'debug.png');
-		this.mouse.up(500, 400);
+		this.mouse.up(857, 350);
+		
 		//this.mouse.up('#grid1 div.gridxRow[rowid="4"] td[colid="Name"]');
 		//this.mouse.up(targetPostion.left+targetPostion.width/2, targetPostion.top+targetPostion.height/2);
 	});
