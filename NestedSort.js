@@ -51,7 +51,6 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
 
 
-
 		Array.prototype.forEach.call(cellsInfo1, function(element){
 			originArr1.push(element.text);
 		});
@@ -60,9 +59,24 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 			originArr2.push(element.text);
 		});
 
+		var tempArr1 = originArr1.concat();
+
+		this.then(function checkResult(){
+
+			test.assertEquals(originArr1, tempArr1.sort().reverse(), '01--The genre column is sorted descending (the data of it equals to its sorted and reversed data)!')
+		});
+
+		//use array.reduce() and array.slice()
+
 		/*utils.dump(originArr1);
 		utils.dump(originArr2);*/
 	});
+
+	casper.then(function thirdNestedSort(){
+		
+		this.mouse.move('#grid2-Year');
+		this.capture(screenshotFolder+'afterHoveronColumnHeader.png');
+	})
 
 	casper.run(function(){
 		test.done();

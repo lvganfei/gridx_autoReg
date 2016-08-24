@@ -61,7 +61,7 @@ casper.test.begin('Dnd', 2, function suite1(test){
 		var selectedCol = this.evaluate(function getSelected(){
 			return grid.select.column.getSelected();
 		});
-		test.assertEquals(selectedCol, ["id", "order"], '01--The selected column should be Genre and Artist!');
+		test.assertEquals(selectedCol, ["id", "order"], '01--The selected column should be id and order!');
 		//Dnd 300px to right
 		var dndStartX = this.getElementBounds('td.gridxColumnSelected[role=gridcell]').left, dndStartY = this.getElementBounds('td.gridxColumnSelected[role=gridcell]').top;
 		this.mouseEvent('mouseover', 'td.gridxColumnSelected[role=gridcell]', '50%', '50%');
@@ -74,9 +74,68 @@ casper.test.begin('Dnd', 2, function suite1(test){
 
 		var colDropX = this.getElementBounds('#grid-id').left;
 		this.echo(selectionStartX+' and '+colDropX);
-		test.assertNotEquals(selectionStartX, colDropX, '02--The position after dnd is changed!');
+		test.assertNotEquals(selectionStartX, colDropX, '02--The position of dragged column after dnd is changed!');
 	});
+
 	casper.run(function(){
 		test.done();
 	});
+});
+
+
+//test dnd column to non-grid target
+casper.test.begin('dnd column to non-grid target', 1, function suite2(test){
+	casper.start(cases.testPagePrefix+'test_grid_dndcolumn_nongrid_target.html', function pageLoadCheck(){
+		this.waitFor(function check(){
+			return this.exists('td.gridxCell ');
+		}, function then(){
+			this.echo('page loaded!');
+			this.evaluate(function addlistener(){
+				document.body.addEventListener('click', function(e){
+					console.log(e.clientX+'&'+e.clientY);
+				})
+			})
+			//this.capture(screenshotFolder+'/originGrid.png');
+		}, function timeout(){
+			this.echo('cant get element!!!!');
+			this.capture(screenshotFolder+'fail.png');
+			this.exit();
+		}, 10000);
+
+	});
+
+	casper.then(function dndToNonGrid(){
+		this.click('#songForm');
+		this.echo('suite 2 started!', 'INFO');
+		//select Genre column
+		this.then(function select(){
+			
+			this.click('#grid-Genre');
+
+		});
+
+		//dnd Genre column
+		this.then(function dndColumn(){
+			
+			this.mouse.down('div.gridxRow[rowid="1"] td[colid="Genre"]');
+			this.mouse.move(335, 365);
+			this.mouse.up(335,365);
+		});
+
+		this.then(function checkResult(){
+			var selectedCol = this.evaluate(function getSelected(){
+				return grid.select.column.getSelected();
+			});
+
+			test.assertEquals(selectedCol, ["Genre"], '03--The selected column should be Genre!');
+			this.capture(screenshotFolder+'afterDndToNonGrid.png');
+			test.comment('Dnd doesnt work, a casper or grid bug to be fixed!');
+		});
+		
+	});
+
+	casper.run(function(){
+		test.done();
+	});
+
 });
