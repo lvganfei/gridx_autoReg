@@ -43,10 +43,10 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 
 	});
 
-	//test case start here
-	//Nested sort test case on the third grid
+	
+	//Nested sort test case on the third grid, the Genre column is descending sorted and Artist column is ascendingly sorted
 	casper.then(function beforeNestedSort(){
-		var originArr1 = [], tempArr1 = [], originArr2 = [], tempArr2 = [];
+		var originArr1 = [], tempArr1 = [], cutIndex1 = [], originArr2 = [], tempArr2 = [], cutIndex2 = [];
 		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
 		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
 
@@ -59,17 +59,59 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 			originArr2.push(element.text);
 		});
 
-		var tempArr1 = originArr1.concat();
+		tempArr1 = originArr1.concat();
+		utils.dump(tempArr1);
+
+		//use array.reduce() and array.slice()
+		this.then(function(){
+			tempArr1.reduce(function(pre, cur, curi, array){
+				if(cur!=pre){
+					cutIndex1.push(curi);
+				}
+				return cur;
+			});
+
+			
+		});
 
 		this.then(function checkResult(){
 
-			test.assertEquals(originArr1, tempArr1.sort().reverse(), '01--The genre column is sorted descending (the data of it equals to its sorted and reversed data)!')
+			
+			test.assertEquals(originArr1, tempArr1.sort().reverse(), '01--The genre column is sorted descending (the data of it equals to its sorted and reversed data)!');
+
+			//every set of Artist column is sorted descendingly
+			//test.assertEquals(originArr2.slice(0,))
+			cutIndex1.forEach(function(ele, index, arr){
+				
+				if(index == arr.length - 1){
+					//deal with last ele
+					casper.echo(ele, 'INFO');
+					utils.dump(originArr2.slice(arr[index-1],ele));
+					test.assertEquals(originArr2.slice(arr[index-1],ele), originArr2.slice(arr[index-1],ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
+					utils.dump(originArr2.slice(ele));
+					test.assertEquals(originArr2.slice(ele), originArr2.slice(ele).concat().sort().reverse(), (index+3)+'--Every set of data should be descendingly sorted!');
+
+				}else{
+					casper.echo(ele, 'INFO');
+					if (index == 0 && arr.length != 1){
+						//deal with first ele
+						utils.dump(originArr2.slice(0, ele));
+						test.assertEquals(originArr2.slice(0,ele), originArr2.slice(0,ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
+
+					}else{
+						utils.dump(originArr2.slice(arr[index-1],ele));
+						test.assertEquals(originArr2.slice(arr[index-1],ele), originArr2.slice(arr[index-1],ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
+
+					}
+					
+				}
+				
+			});
 		});
 
-		//use array.reduce() and array.slice()
 
-		/*utils.dump(originArr1);
-		utils.dump(originArr2);*/
+
+		
 	});
 
 	casper.then(function thirdNestedSort(){
