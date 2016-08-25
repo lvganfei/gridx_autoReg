@@ -50,19 +50,25 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
 		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
 
+		this.then(function getOriginArr(){
+			Array.prototype.forEach.call(cellsInfo1, function(element){
+				originArr1.push(element.text);
+			});
 
-		Array.prototype.forEach.call(cellsInfo1, function(element){
-			originArr1.push(element.text);
+			Array.prototype.forEach.call(cellsInfo2, function(element){
+				originArr2.push(element.text);
+			});
+
+			this.then(function temp(){
+				tempArr1 = originArr1.concat();
+				
+			})
 		});
+		
 
-		Array.prototype.forEach.call(cellsInfo2, function(element){
-			originArr2.push(element.text);
-		});
+		
 
-		tempArr1 = originArr1.concat();
-		utils.dump(tempArr1);
-
-		//use array.reduce() and array.slice()
+		//use array.reduce() to extract the index of element which is not equal pre value and use array.slice() to split array
 		this.then(function(){
 			tempArr1.reduce(function(pre, cur, curi, array){
 				if(cur!=pre){
@@ -71,54 +77,87 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 				return cur;
 			});
 
+			this.then(function addStarting(){
+				utils.dump(tempArr1);
+				//add 0 and length of tempArr as starting index
+				cutIndex1.unshift(0);
+			})
 			
 		});
+
+		
 
 		this.then(function checkResult(){
 
-			
+			utils.dump(cutIndex1);
 			test.assertEquals(originArr1, tempArr1.sort().reverse(), '01--The genre column is sorted descending (the data of it equals to its sorted and reversed data)!');
 
 			//every set of Artist column is sorted descendingly
-			//test.assertEquals(originArr2.slice(0,))
 			cutIndex1.forEach(function(ele, index, arr){
 				
-				if(index == arr.length - 1){
-					//deal with last ele
-					casper.echo(ele, 'INFO');
-					utils.dump(originArr2.slice(arr[index-1],ele));
-					test.assertEquals(originArr2.slice(arr[index-1],ele), originArr2.slice(arr[index-1],ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
-					utils.dump(originArr2.slice(ele));
-					test.assertEquals(originArr2.slice(ele), originArr2.slice(ele).concat().sort().reverse(), (index+3)+'--Every set of data should be descendingly sorted!');
-
-				}else{
-					casper.echo(ele, 'INFO');
-					if (index == 0 && arr.length != 1){
-						//deal with first ele
-						utils.dump(originArr2.slice(0, ele));
-						test.assertEquals(originArr2.slice(0,ele), originArr2.slice(0,ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
-
-					}else{
-						utils.dump(originArr2.slice(arr[index-1],ele));
-						test.assertEquals(originArr2.slice(arr[index-1],ele), originArr2.slice(arr[index-1],ele).concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');
-
-					}
-					
-				}
+				var testSet = originArr2.slice(ele, arr[index+1]);
+				utils.dump(testSet);
+				test.assertEquals(testSet, testSet.concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');					
 				
 			});
 		});
-
-
 
 		
 	});
 
 	casper.then(function thirdNestedSort(){
+		var originArr1 = [], tempArr1 = [], cutIndex1 = [], originArr2 = [], tempArr2 = [], cutIndex2 = [];
+		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
+		var cellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
+
+		this.then(function getOriginArr(){
+			Array.prototype.forEach.call(cellsInfo1, function(element){
+				originArr1.push(element.text);
+			});
+
+			Array.prototype.forEach.call(cellsInfo2, function(element){
+				originArr2.push(element.text);
+			});
+
+			this.then(function temp(){
+				tempArr1 = originArr1.concat();
+				
+			})
+		});
 		
-		this.mouse.move('#grid2-Year');
-		this.capture(screenshotFolder+'afterHoveronColumnHeader.png');
-	})
+		this.then(function clickYearHeader(){
+			
+			this.mouse.move('#grid2-Year');
+		
+			this.click('#grid2-Year div.gridxSortBtnNested');
+		});
+
+		this.then(function checkResult(){
+			var newArr1 = [], newTempArr1 = [], newCutIndex1 = [], newArr2 = [], newTempArr2 = [], newCutIndex2 = [];
+			var newCellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
+			var newCellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
+
+			this.then(function getOriginArr(){
+				Array.prototype.forEach.call(newCellsInfo1, function(element){
+					newArr1.push(element.text);
+				});
+
+				Array.prototype.forEach.call(newCellsInfo2, function(element){
+					newArr2.push(element.text);
+				});
+
+				
+			});
+
+			this.then(function testOld(){
+				this.capture(screenshotFolder+'afterHoveronColumnHeader.png');
+
+				test.assertEquals(newArr1, originArr1, '05--The sort order of Genre column not chnage!');
+				test.assertEquals(newArr2, originArr2, '06--The sort order of Artist column not change!');
+			});
+			
+		})
+	});
 
 	casper.run(function(){
 		test.done();
