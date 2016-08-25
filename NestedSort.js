@@ -21,6 +21,21 @@ casper.on('remote.message', function(msg) {
     this.echo('remote message caught: ' + msg, 'INFO');
 });
 
+//grid reload function
+casper.gridLoadCheck = function(){
+		this.waitFor(function check(){
+			return this.exists('td.gridxCell ');
+		}, function then(){
+			this.echo('page loaded!');
+			this.capture(screenshotFolder+'originGrid.png');
+		}, function timeout(){
+			this.echo('cant get element!!!!');
+			this.capture('fail.png');
+			this.exit();
+		}, 10000);	
+
+};
+
 //refresh grid function
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -52,11 +67,11 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 
 		this.then(function getOriginArr(){
 			Array.prototype.forEach.call(cellsInfo1, function(element){
-				originArr1.push(element.text);
+				originArr1.push(element.text.trim());
 			});
 
 			Array.prototype.forEach.call(cellsInfo2, function(element){
-				originArr2.push(element.text);
+				originArr2.push(element.text.trim());
 			});
 
 			this.then(function temp(){
@@ -105,6 +120,7 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 		
 	});
 
+	//nested sort the year column and check the sort order
 	casper.then(function thirdNestedSort(){
 		var originArr1 = [], tempArr1 = [], cutIndex1 = [], originArr2 = [], tempArr2 = [], cutIndex2 = [];
 		var cellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
@@ -112,11 +128,11 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 
 		this.then(function getOriginArr(){
 			Array.prototype.forEach.call(cellsInfo1, function(element){
-				originArr1.push(element.text);
+				originArr1.push(element.text.trim());
 			});
 
 			Array.prototype.forEach.call(cellsInfo2, function(element){
-				originArr2.push(element.text);
+				originArr2.push(element.text.trim());
 			});
 
 			this.then(function temp(){
@@ -133,29 +149,137 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 		});
 
 		this.then(function checkResult(){
-			var newArr1 = [], newTempArr1 = [], newCutIndex1 = [], newArr2 = [], newTempArr2 = [], newCutIndex2 = [];
+			var newArr1 = [], newTempArr1 = [], newCutIndex1 = [], newArr2 = [];
 			var newCellsInfo1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
 			var newCellsInfo2 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
 
 			this.then(function getOriginArr(){
 				Array.prototype.forEach.call(newCellsInfo1, function(element){
-					newArr1.push(element.text);
+					newArr1.push(element.text.trim());
 				});
 
 				Array.prototype.forEach.call(newCellsInfo2, function(element){
-					newArr2.push(element.text);
+					newArr2.push(element.text.trim());
 				});
 
 				
 			});
 
-			this.then(function testOld(){
+			this.then(function checkOld(){
 				this.capture(screenshotFolder+'afterHoveronColumnHeader.png');
 
 				test.assertEquals(newArr1, originArr1, '05--The sort order of Genre column not chnage!');
 				test.assertEquals(newArr2, originArr2, '06--The sort order of Artist column not change!');
 			});
 			
+			this.then(function checkArtistYear(){
+				newArr1 = [], newArr2 = [];
+				//get the column data fo Artist and Year
+				newCellsInfo1 = this.getElementsInfo('#grid2 td[colid="Artist"][role="gridcell"]');
+				newCellsInfo2 = this.getElementsInfo('#grid2 td[colid="Year"][role="gridcell"]');
+
+				this.then(function getOriginArr(){
+					Array.prototype.forEach.call(newCellsInfo1, function(element){
+						newArr1.push(element.text.trim());
+					});
+
+					Array.prototype.forEach.call(newCellsInfo2, function(element){
+						newArr2.push(element.text.trim());
+					});
+
+				
+				});
+
+				this.then(function getCutIndexofArtist(){
+					newArr1.reduce(function(pre, cur, curi, array){
+						if(cur!=pre){
+							newCutIndex1.push(curi);
+						}
+						return cur;
+					});
+
+					this.then(function addStarting(){
+						utils.dump(newArr1);
+						//add 0 and length of tempArr as starting index
+						newCutIndex1.unshift(0);
+					})
+					
+				});
+
+				this.then(function checkYearCol(){
+
+					this.echo('Check year column!', 'INFO');
+					utils.dump(newCutIndex1);
+
+					//get the every set of year column then sort and compare.
+					newCutIndex1.forEach(function(ele, index, arr){
+				
+						var testSet = newArr2.slice(ele, arr[index+1]);
+						utils.dump(testSet);
+						test.assertEquals(testSet, testSet.concat().sort(), (index+7)+'--Every set of data should be ascendingly sorted!');					
+						
+					})
+				})
+			})
+		});
+
+		this.then(function tearDown(){
+			this.reload(this.gridLoadCheck);
+		})
+	});
+
+	//nest sort columns from blank
+	casper.then(function nestedSortAgain(){
+
+		//sorted Genre col firstly
+		this.mouse.move('#grid2-Genre');
+		this.click('#grid2-Genre div.gridxSortBtnSingle');
+
+		//then nested sort Year column
+		this.then(function sortYear(){
+
+			this.capture(screenshotFolder+'afterSingleSortGenre.png');
+			this.mouse.move('#grid2-Year');
+			this.click('#grid2-Year div.gridxSortBtnNested');
+
+		});
+
+		//then scroll to right 400 px
+		this.then(function scrollRight(){
+			this.capture(screenshotFolder+'afterNestedSortYear.png');
+			this.evaluate(function scroll(){
+
+				grid2.hScroller.scroll(500);
+
+			})
+		});
+		//then nested sort Date column
+		this.then(function sortDate(){
+
+			this.wait(1000, function(){
+				this.capture(screenshotFolder+'afterscrollright.png');
+				this.mouse.move('#grid2-DownloadDate');
+				this.click('#grid2-DownloadDate div.gridxSortBtnNested');
+			})
+			
+
+		});
+
+		this.then(function checkResult(){
+			this.evaluate(function scroll(){
+
+				grid2.hScroller.scroll(500);
+
+			});
+			this.wait(1000, function capture(){
+				var sortData = this.evaluate(function(){
+					return grid2.sort.getSortData();
+				});
+
+				utils.dump(sortData);
+				this.capture(screenshotFolder+'afterNestedSortDate.png');
+			});
+
 		})
 	});
 
