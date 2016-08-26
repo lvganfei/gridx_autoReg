@@ -230,10 +230,23 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 
 	//nest sort columns from blank
 	casper.then(function nestedSortAgain(){
+		
+		this.evaluate(function resize(){
 
-		//sorted Genre col firstly
-		this.mouse.move('#grid2-Genre');
-		this.click('#grid2-Genre div.gridxSortBtnSingle');
+				
+				grid2.resize({w:1200});
+
+		});
+
+		//resize the grid2 wider to workaround the click wrong place 
+		this.then(function scrollRight(){
+			
+			//sorted Genre col firstly
+			this.mouse.move('#grid2-Genre');
+			this.click('#grid2-Genre div.gridxSortBtnSingle');
+			
+		});
+		
 
 		//then nested sort Year column
 		this.then(function sortYear(){
@@ -244,20 +257,12 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 
 		});
 
-		//then scroll to right 400 px
-		this.then(function scrollRight(){
-			this.capture(screenshotFolder+'afterNestedSortYear.png');
-			this.evaluate(function scroll(){
-
-				grid2.hScroller.scroll(500);
-
-			})
-		});
+		
 		//then nested sort Date column
 		this.then(function sortDate(){
 
 			this.wait(1000, function(){
-				this.capture(screenshotFolder+'afterscrollright.png');
+				this.capture(screenshotFolder+'afterNestedSortYear.png');
 				this.mouse.move('#grid2-DownloadDate');
 				this.click('#grid2-DownloadDate div.gridxSortBtnNested');
 			})
@@ -266,19 +271,44 @@ casper.test.begin('Nested sort test case', 14, function suite1(test){
 		});
 
 		this.then(function checkResult(){
-			this.evaluate(function scroll(){
+			//deal with data of Genre Year and date
+			var cellsData1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
+			var cellsData2 = this.getElementsInfo('#grid2 td[colid="Year"][role="gridcell"]');
+			var cellsData3 = this.getElementsInfo('#grid2 td[colid="DownloadDate"][role="gridcell"]');
 
-				grid2.hScroller.scroll(500);
+			var nodeToArr = function(nodelist){
+				
+				var tempArr = [];
+				Array.prototype.forEach.call(nodelist, function(e){
+					tempArr.push(e.text.trim());
+				});
+				return tempArr;
+			};
 
-			});
+			
 			this.wait(1000, function capture(){
+
+				var colArr1 = nodeToArr(cellsData1), colArr2 = nodeToArr(cellsData2), colArr3 = nodeToArr(cellsData3);
+
+				utils.dump(colArr1);
+				utils.dump(colArr2);
+				utils.dump(colArr3);
+
 				var sortData = this.evaluate(function(){
 					return grid2.sort.getSortData();
 				});
 
 				utils.dump(sortData);
 				this.capture(screenshotFolder+'afterNestedSortDate.png');
+
+				test.assertEquals(sortData.length, 3 ,'12--The sort data has 3 entries!');
+				test.assertTruthy((sortData[0].colId=='Genre') && (sortData[0].descending === false), '13--The first sorted column is Genre and descending!');
+				test.assertTruthy((sortData[1].colId=='Year') && (sortData[1].descending === false), '14--The second sorted column is Year and descending!');
+				test.assertTruthy((sortData[2].colId=='DownloadDate') && (sortData[2].descending === false), '15--The third sorted column is DownloadDate and descending!');
+				test.assertTruthy((colArr1.length == colArr2.length && colArr2.length == colArr3.length), '16--The length of three column data should be same!');
 			});
+
+
 
 		})
 	});
