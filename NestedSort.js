@@ -43,7 +43,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('Nested sort test case', 26, function suite1(test){
+casper.test.begin('Nested sort test case', 43, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.NestedSort, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -93,7 +93,7 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 			});
 
 			this.then(function addStarting(){
-				utils.dump(tempArr1);
+				//utils.dump(tempArr1);
 				//add 0 and length of tempArr as starting index
 				cutIndex1.unshift(0);
 			})
@@ -104,14 +104,14 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 
 		this.then(function checkResult(){
 
-			utils.dump(cutIndex1);
+			//utils.dump(cutIndex1);
 			test.assertEquals(originArr1, tempArr1.sort().reverse(), '01--The genre column is sorted descending (the data of it equals to its sorted and reversed data)!');
 
 			//every set of Artist column is sorted descendingly
 			cutIndex1.forEach(function(ele, index, arr){
 				
 				var testSet = originArr2.slice(ele, arr[index+1]);
-				utils.dump(testSet);
+				//utils.dump(testSet);
 				test.assertEquals(testSet, testSet.concat().sort().reverse(), (index+2)+'--Every set of data should be descendingly sorted!');					
 				
 			});
@@ -199,7 +199,7 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 					});
 
 					this.then(function addStarting(){
-						utils.dump(newArr1);
+						//utils.dump(newArr1);
 						//add 0 and length of tempArr as starting index
 						newCutIndex1.unshift(0);
 					})
@@ -208,14 +208,14 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 
 				this.then(function checkYearCol(){
 
-					this.echo('Check year column!', 'INFO');
-					utils.dump(newCutIndex1);
+					//this.echo('Check year column!', 'INFO');
+					//utils.dump(newCutIndex1);
 
 					//get the every set of year column then sort and compare.
 					newCutIndex1.forEach(function(ele, index, arr){
 				
 						var testSet = newArr2.slice(ele, arr[index+1]);
-						utils.dump(testSet);
+						//utils.dump(testSet);
 						test.assertEquals(testSet, testSet.concat().sort(), (index+7)+'--Every set of data should be ascendingly sorted!');					
 						
 					})
@@ -240,7 +240,7 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 		});
 
 		//resize the grid2 wider to workaround the click wrong place 
-		this.then(function scrollRight(){
+		this.then(function sortGenre(){
 			
 			//sorted Genre col firstly
 			this.mouse.move('#grid2-Genre');
@@ -305,14 +305,14 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 				var colArr1 = nodeToArr(cellsData1), colArr2 = nodeToArr(cellsData2), colArr3 = nodeToArr(cellsData3);
 				var cutIndex1 = getCutIndex(colArr1), cutIndex2 = getCutIndex(colArr2);
 
-				this.echo('now print column data');
-				utils.dump(colArr1);
-				utils.dump(colArr2);
-				utils.dump(colArr3);
+				//this.echo('now print column data');
+				//utils.dump(colArr1);
+				//utils.dump(colArr2);
+				//utils.dump(colArr3);
 
-				this.echo('now print cut index of 1st and 2nd column');
-				utils.dump(cutIndex1);
-				utils.dump(cutIndex2);
+				//this.echo('now print cut index of 1st and 2nd column');
+				//utils.dump(cutIndex1);
+				//utils.dump(cutIndex2);
 
 				var sortData = this.evaluate(function(){
 					return grid2.sort.getSortData();
@@ -336,7 +336,7 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 					cutIndex1.forEach(function(ele, index, arr){
 						//the series of cells of Year column is ascending sorted according Genre column's data
 						var testSet = colArr2.slice(ele, arr[index+1]);
-						test.assertEquals(testSet, testSet.concat().sort(), (index+18)+'--Every set of data in Year col is ascending sorted!');
+						test.assertEquals(testSet, testSet.concat().sort(function(a,b){return a-b;}), (index+18)+'--Every set of data in Year col is ascending sorted!');
 					});
 				});
 
@@ -354,39 +354,165 @@ casper.test.begin('Nested sort test case', 26, function suite1(test){
 						   return 0;
 						});
 
-						casper.echo('this is sortedTestSet:', 'INFO');
-						utils.dump(sortedTestSet);
+						//casper.echo('this is sortedTestSet:', 'INFO');
+						//utils.dump(sortedTestSet);
 						test.assertEquals(testSet, sortedTestSet, (index+20)+'--Every set of data in Date col is ascending sorted!');
 					});
 				});
-/*
-				this.then(function expr(){
-					var testSet = ['2004/5/23', '1941/4/23', undefined], sortedTestSet=[testSet[0]];
 
-					testSet.reduce(function(pre, cur, index, arr){
-							var preDate = new Date(pre), curDate = new Date(cur);
-							if(preDate > curDate){
-								//if curent value is less than previous one then exchange
-								sortedTestSet[index]=pre;
-								sortedTestSet[index-1]=cur;
-								return cur;
-							}else{
-								sortedTestSet[index] = cur;
-								return cur;
-							}
-					});
+				this.then(function tearDown(){
+					this.reload(this.gridLoadCheck);
+				})
 
-					this.echo('this is debug: ', 'INFO');
-					utils.dump(sortedTestSet);
-
-
-				})*/
 			});
 
 
 
 		})
 	});
+
+
+	//nest sort columns Genre->Year->Date again by descending
+	/*<-------------------------------------------------------------------------------------------------------------------------->*/
+	casper.then(function nestedSortAgain(){
+		
+		this.evaluate(function resize(){
+
+				
+				grid2.resize({w:1200});
+
+		});
+
+		//resize the grid2 wider to workaround the click wrong place 
+		this.then(function sortGenre(){
+			
+			//sorted Genre col descendingly by twice click
+			this.mouse.move('#grid2-Genre');
+			this.click('#grid2-Genre div.gridxSortBtnSingle');
+			this.click('#grid2-Genre div.gridxSortBtnSingle');
+		});
+		
+
+		//then nested sort Year column
+		this.then(function sortYear(){
+
+			this.capture(screenshotFolder+'afterSingleSortGenreDes.png');
+			this.mouse.move('#grid2-Year');
+			this.click('#grid2-Year div.gridxSortBtnNested');
+			this.click('#grid2-Year div.gridxSortBtnNested');
+
+		});
+
+		
+		//then nested sort Date column
+		this.then(function sortDate(){
+
+			this.wait(1000, function(){
+				this.capture(screenshotFolder+'afterNestedSortYearDes.png');
+				this.mouse.move('#grid2-DownloadDate');
+				this.click('#grid2-DownloadDate div.gridxSortBtnNested');
+				this.click('#grid2-DownloadDate div.gridxSortBtnNested');
+			})
+			
+
+		});
+
+		this.then(function checkResult(){
+			//deal with data of Genre Year and date
+			var cellsData1 = this.getElementsInfo('#grid2 td[colid="Genre"][role="gridcell"]');
+			var cellsData2 = this.getElementsInfo('#grid2 td[colid="Year"][role="gridcell"]');
+			var cellsData3 = this.getElementsInfo('#grid2 td[colid="DownloadDate"][role="gridcell"]');
+
+			var nodeToArr = function(nodelist){
+				
+				var tempArr = [];
+				Array.prototype.forEach.call(nodelist, function(e){
+					tempArr.push(e.text.trim());
+				});
+				return tempArr;
+			};
+
+			var getCutIndex = function(arr){
+				var tempArr =[];
+				arr.reduce(function(pre, cur, curi, array){
+						if(cur!=pre){
+							tempArr.push(curi);
+						}
+						return cur;
+				});
+
+				tempArr.unshift(0);
+				return tempArr;
+			};
+
+			
+			this.wait(1000, function capture(){
+
+				var colArr1 = nodeToArr(cellsData1), colArr2 = nodeToArr(cellsData2), colArr3 = nodeToArr(cellsData3);
+				var cutIndex1 = getCutIndex(colArr1), cutIndex2 = getCutIndex(colArr2);
+
+				//this.echo('now print column data');
+				//utils.dump(colArr1);
+				//utils.dump(colArr2);
+				//utils.dump(colArr3);
+
+				//this.echo('now print cut index of 1st and 2nd column');
+				//utils.dump(cutIndex1);
+				//utils.dump(cutIndex2);
+
+				var sortData = this.evaluate(function(){
+					return grid2.sort.getSortData();
+				});
+
+				this.then(function checkSortData(){
+					this.capture(screenshotFolder+'afterNestedSortDateDes.png');
+
+					test.assertEquals(sortData.length, 3 ,'27--The sort data has 3 entries!');
+					test.assertTruthy((sortData[0].colId=='Genre') && (sortData[0].descending === true), '28--The first sorted column is Genre and descending!');
+					test.assertTruthy((sortData[1].colId=='Year') && (sortData[1].descending === true), '29--The second sorted column is Year and descending!');
+					test.assertTruthy((sortData[2].colId=='DownloadDate') && (sortData[2].descending === true), '30--The third sorted column is DownloadDate and descending!');
+					test.assertTruthy((colArr1.length == colArr2.length && colArr2.length == colArr3.length), '31--The length of three column data should be same!');
+				});
+
+				this.then(function checkGenre(){
+					test.assertEquals(colArr1, colArr1.concat().sort().reverse(), '32--The data of Genre column is descending sorted!');
+				});
+				
+				this.then(function checkYear(){
+					cutIndex1.forEach(function(ele, index, arr){
+						//the series of cells of Year column is ascending sorted according Genre column's data
+						var testSet = colArr2.slice(ele, arr[index+1]);
+						test.assertEquals(testSet, testSet.concat().sort(function(a,b){return b-a;}), (index+33)+'--Every set of data in Year col is descending sorted!');
+					});
+				});
+
+				this.then(function checkDate(){
+					cutIndex2.forEach(function(ele, index, arr){
+						
+						var testSet = colArr3.slice(ele, arr[index+1]), sortedTestSet=[];
+						//need to sort testSet by date type insead of string type, then compare it with original test set of data
+						var sortedTestSet = testSet.concat().sort(function(a, b){
+						   var dateA = new Date(a), dateB = new Date(b);
+						   if (a == ''){dateA=null;}
+						   if (b == ''){dateB=null;}
+						   if (dateA<dateB) {return 1}
+						   if (dateA>dateB) {return -1}
+						   return 0;
+						});
+
+						//casper.echo('this is sortedTestSet:', 'INFO');
+						//utils.dump(sortedTestSet);
+						test.assertEquals(testSet, sortedTestSet, (index+36)+'--Every set of data in Date col is descending sorted!');
+					});
+				});
+
+			});
+
+
+
+		})
+	});
+
 
 	casper.run(function(){
 		test.done();
