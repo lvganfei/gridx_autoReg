@@ -1,7 +1,7 @@
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
-var screenshotFolder = 'screenshot/module/';
+var screenshotFolder = 'screenshot/Filter/';
 
 //edit the capser object properties in test instance
 casper.options.verbose = config.verbose;
@@ -43,8 +43,49 @@ casper.gridLoadCheck = function(){
 
 };
 
-casper.test.begin('case name', 14, function suite1(test){
-	casper.start(cases.testPagePrefix+cases.currentCaseName, function pageLoadCheck(){
+//test quick filter
+casper.test.begin('Filter test case', 14, function suite1(test){
+	casper.start(cases.testPagePrefix+cases.QuickFilter, function pageLoadCheck(){
+		this.waitFor(function check(){
+			return this.exists('td.gridxCell ');
+		}, function then(){
+			this.echo('page loaded!');
+			this.capture(screenshotFolder+'originGrid.png');
+		}, function timeout(){
+			this.echo('cant get element!!!!');
+			this.capture('fail.png');
+			this.exit();
+		}, 10000);
+
+	});
+
+	//test first QuickFilter(case sensitive) grid, id=grid3
+	casper.then(function QuickFilter1(){
+		this.click('#grid3 div.gridxQuickFilterInput');
+		this.page.sendEvent('keypress', 'voo');
+		this.wait(1000, function checkResult(){
+			this.capture(screenshotFolder+'afterSetDataOf1stQuickFilter.png');
+		})
+	});
+
+
+	//test second QuickFilter(case insensitive) grid, id=grid4
+	casper.then(function QuickFilter1(){
+		this.click('#grid4 div.gridxQuickFilterInput');
+		this.page.sendEvent('keypress', 'der');
+		this.wait(1000, function checkResult(){
+			this.capture(screenshotFolder+'afterSetDataOf2stQuickFilter.png');
+		})
+	});
+
+	casper.run(function(){
+		test.done();
+	});
+});
+
+/*<------------------------------test filter bar and filter dialog----------------------------------------------------------------------------------*/
+casper.test.begin('Filter test case', 14, function suite2(test){
+	casper.start(cases.testPagePrefix+cases.FilterBar, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
 		}, function then(){
