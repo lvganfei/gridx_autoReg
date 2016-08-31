@@ -46,7 +46,7 @@ casper.gridLoadCheck = function(){
 };
 
 //test quick filter
-casper.test.begin('Quick Filter test case', 8, function suite1(test){
+casper.test.begin('Quick Filter test case', 13, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.QuickFilter, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
@@ -140,6 +140,40 @@ casper.test.begin('Quick Filter test case', 8, function suite1(test){
 			test.assertEquals(rowCount, 1, '07--[insensitive] There filter insensitive result of "Voo" should be 1!');
 			test.assertMatch(innerBody, /Voo/ig, '08--[insensitive] The body node of filtered case insensitive grid should contain "Voo"!');
 		});
+	});
+
+	//test the filterBar and quickFilter grid#5
+	casper.then(function quickFilter3(){
+
+		this.waitForSelector('#grid5', function inputData(){
+			this.sendKeys('#grid5 div.gridxQuickFilterHasFilterBar input.dijitInputInner', 'der', {reset:true});
+		});
+
+		this.wait(1000, function checkResult(){
+			var rowCount = this.evaluate(function(){
+				return grid5.rowCount();
+			});
+
+			var filterConditions = this.evaluate(function(){
+				return grid5.filterBar.filterData.conditions;
+			});
+
+			var innerBody = this.getElementInfo('#grid5 div.gridxBody').html;
+
+			this.then(function tests(){
+				this.capture(screenshotFolder+'after1stComboFilter.png');
+				utils.dump(filterConditions);
+				test.assertEquals(filterConditions.length, 1 , '09--The filterBar has 1 condition!');
+				test.assertEquals(filterConditions[0].condition, 'contain', '10--The filter condition in filterBar should be "contain"!');
+				test.assertEquals(filterConditions[0].value, 'der', '11--The filter value in filterBar should be "der"!');
+
+				test.assertEquals(rowCount, 2, '12--The result of "der" filter insensitive should be 2!');
+				test.assertMatch(innerBody, /der/ig, '13--The dom body contains "der"!');
+
+			})
+			
+
+		})
 	});
 
 	casper.run(function(){
