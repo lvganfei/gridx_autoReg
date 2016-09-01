@@ -3,7 +3,7 @@ var config = require('./common').config;
 var utils = require('utils');
 var screenshotFolder = 'screenshot/DndColumn/';
 
-casper.options.verbose = true;
+casper.options.verbose = false;
 casper.options.logLevel = 'debug';
 casper.options.viewportSize = {width:1280, height:800};
 

@@ -1,4 +1,3 @@
-phantom.outputEncoding="UTF-8";
 var cases = require('./common').cases;
 var config = require('./common').config;
 var utils = require('utils');
@@ -53,11 +52,27 @@ casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
 
 	//test case start here
 	casper.then(function(){
-		this.echo(this.gridLoadCheck);
-		this.reload(casper.gridLoadCheck);
-		this.then(function(){
-			this.refreshGrid('grid');
-		})
+
+		this.waitForSelector('#grid1', function clickFilterBar(){
+			this.click('#grid1 div.gridxFilterBarStatus');
+		});
+
+		this.waitUntilVisible('div.gridxFilterDialog', function checkFilterDialog(){
+			this.wait(1000, function(){
+				var titles = this.getElementsInfo('span.dijitAccordionText');
+				this.capture(screenshotFolder+'afterClickFilterBar.png');
+
+				for(var i=0; i<titles.length; i++){
+					utils.dump(titles[i].text);
+				}
+				
+				//test.assert
+			})
+			
+
+		});
+		
+
 		
 		//this.capture(screenshotFolder+'originGrid.png');
 	});
