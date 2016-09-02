@@ -5,7 +5,7 @@ var screenshotFolder = 'screenshot/FilterBar/';
 
 //edit the capser object properties in test instance
 
-casper.options.verbose = config.verbose;
+casper.options.verbose = true;// config.verbose;
 casper.options.logLevel = config.logLevel;
 casper.options.viewportSize = config.viewportSize;
 
@@ -44,11 +44,22 @@ casper.gridLoadCheck = function(){
 
 };
 
+//language setting
+
+
 
 /*<------------------------------test filter bar and filter dialog----------------------------------------------------------------------------------*/
 casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
-	
-	casper.start(cases.testPagePrefix+cases.FilterBar, casper.gridLoadCheck);
+
+
+	casper.start();
+	casper.then(function(){
+		this.open(cases.testPagePrefix+cases.FilterBar, {
+			headers: {'Accept-Language': 'zh-CN,zh'}
+		}).then(casper.gridLoadCheck);
+	});
+		
+	//casper.start(cases.testPagePrefix+cases.FilterBar, casper.gridLoadCheck);
 
 	//test case start here
 	casper.then(function(){
@@ -58,7 +69,8 @@ casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
 		});
 
 		this.waitUntilVisible('div.gridxFilterDialog', function checkFilterDialog(){
-			this.wait(1000, function(){
+			this.wait(1000, function(){	
+
 				var titles = this.getElementsInfo('span.dijitAccordionText');
 				this.capture(screenshotFolder+'afterClickFilterBar.png');
 
