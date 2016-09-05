@@ -7,7 +7,9 @@ var utils = require('utils');
 var x = require('casper').selectXPath;
 var screenshotFolder = 'screenshot/foo/';
 //var mouse = require('mouse').create(casper);
-
+casper.page.customHeaders = {
+  "Accept-Language": "en, en-US"
+};
 
 casper.refreshGrid = function(eleId){
 	this.evaluate(function(eleId){
@@ -45,7 +47,17 @@ casper.on('remote.message', function(msg) {
     this.echo('remote message caught: ' + msg, 'INFO');
 });
 
-casper.start(cases.testPagePrefix+'test_grid_dndrow_betweengrids.html', gridLoadCheck);
+casper.start();
+
+
+
+/*casper.then(function(){
+	this.open(cases.testPagePrefix+'test_grid_filter.html', {
+		headers: {'Accept-Language': 'en-US,en'}
+	}).then(gridLoadCheck);
+});
+*/
+//casper.start(cases.testPagePrefix+'test_grid_dndrow_betweengrids.html', gridLoadCheck);
     
 casper.then(function setup(){
 	this.evaluate(function addEventListener(){

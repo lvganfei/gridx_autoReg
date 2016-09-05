@@ -55,7 +55,7 @@ casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
 	casper.start();
 	casper.then(function(){
 		this.open(cases.testPagePrefix+cases.FilterBar, {
-			headers: {'Accept-Language': 'zh-CN,zh'}
+			customHeaders: {'Accept-Language': 'en-US,en'}
 		}).then(casper.gridLoadCheck);
 	});
 		
@@ -69,16 +69,36 @@ casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
 		});
 
 		this.waitUntilVisible('div.gridxFilterDialog', function checkFilterDialog(){
-			this.wait(1000, function(){	
-
+			this.wait(1000, function checking(){	
+				var preDefRule = JSON.parse(this.getElementInfo('#preFilterInput').text);
 				var titles = this.getElementsInfo('span.dijitAccordionText');
+				var filterCons = this.evaluate(function(){
+					return grid1.filterBar.filterData.conditions;
+				});
+
 				this.capture(screenshotFolder+'afterClickFilterBar.png');
 
-				for(var i=0; i<titles.length; i++){
-					utils.dump(titles[i].text);
-				}
+				utils.dump(preDefRule);
+				utils.dump(filterCons);
+				//compare the filterData with predefined rules
+				//match type is any
+				test.assertEquals(preDefRule.type, 'any', '01--The match type should be any!');
+
+				//compare conditions
+				test.assertEquals(preDefRule.conditions[0], filterCons[0], '02--The filterDate[0] should be equal to the pre defined rules!');
+				test.assertEquals(preDefRule.conditions[1], filterCons[1], '02--The filterDate[1] should be equal to the pre defined rules!');
+				//test.assertEquals(preDefRule.conditions[2], filterCons[2], '02--The filterDate[2] should be equal to the pre defined rules!');
+				test.assertEquals(preDefRule.conditions[2].value.amount, filterCons[2].value.amount, '02--The filterDate[2] should be equal to the pre defined rules!');
+				test.assertEquals(preDefRule.conditions[2].value.interval, filterCons[2].value.interval, '02--The filterDate[2] should be equal to the pre defined rules!');
+
+
+				//compare the text of domNode
+				test.assertEquals(titles[0].text, 'Download Date before 11/20/2000', '03--The first rule should be correct!');
+
+				test.assertEquals(titles[1].text, 'Date Time after 11/20/1950 00:00:00', '04--The second rule should be correct!');
 				
-				//test.assert
+				test.assertEquals(titles[2].text, 'Download Date past 2000 days', '05--The second rule should be correct!');
+
 			})
 			
 
