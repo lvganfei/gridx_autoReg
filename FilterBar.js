@@ -55,7 +55,11 @@ casper.test.begin('Filter bar & dialog test case', 14, function suite(test){
 	casper.start();
 	casper.then(function(){
 		this.open(cases.testPagePrefix+cases.FilterBar, {
-			customHeaders: {'Accept-Language': 'en-US,en'}
+
+			//customHeaders: {'Accept-Language': 'en-US,en'}
+
+			headers: {'Accept-Language': 'fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3'}
+
 		}).then(casper.gridLoadCheck);
 	});
 		

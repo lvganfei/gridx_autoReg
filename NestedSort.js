@@ -43,7 +43,7 @@ casper.refreshGrid = function(eleId){
 	}, eleId);
 };
 
-casper.test.begin('nested sort test case', 44, function suite1(test){
+casper.test.begin('nested sort test case', 43, function suite1(test){
 	casper.start(cases.testPagePrefix+cases.NestedSort, function pageLoadCheck(){
 		this.waitFor(function check(){
 			return this.exists('td.gridxCell ');
